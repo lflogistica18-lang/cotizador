@@ -1,0 +1,652 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Cotizador - Control de Plagas</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Segoe UI', sans-serif; background: #f0f2f5; color: #1a1a2e; }
+  .header { background: linear-gradient(135deg, #1a1a2e, #16213e); color: #fff; padding: 20px 30px; display: flex; justify-content: space-between; align-items: center; }
+  .header h1 { font-size: 1.4em; }
+  .header .precios-info { font-size: 0.85em; opacity: 0.8; }
+  .container { max-width: 900px; margin: 20px auto; padding: 0 15px; }
+  .step { background: #fff; border-radius: 12px; padding: 25px; margin-bottom: 15px; box-shadow: 0 2px 8px rgba(0,0,0,0.08); display: none; }
+  .step.active { display: block; }
+  .step h2 { font-size: 1.1em; color: #16213e; margin-bottom: 15px; padding-bottom: 10px; border-bottom: 2px solid #e8e8e8; }
+  .step-indicator { display: flex; gap: 8px; margin-bottom: 20px; flex-wrap: wrap; }
+  .step-indicator .dot { width: 32px; height: 32px; border-radius: 50%; background: #ddd; display: flex; align-items: center; justify-content: center; font-size: 0.75em; font-weight: 600; color: #888; }
+  .step-indicator .dot.active { background: #0f3460; color: #fff; }
+  .step-indicator .dot.done { background: #4caf50; color: #fff; }
+  label { display: block; font-weight: 600; margin: 10px 0 5px; font-size: 0.9em; }
+  input, select, textarea { width: 100%; padding: 10px 12px; border: 1.5px solid #ddd; border-radius: 8px; font-size: 0.95em; transition: border-color 0.2s; }
+  input:focus, select:focus, textarea:focus { outline: none; border-color: #0f3460; }
+  .row { display: flex; gap: 12px; }
+  .row > div { flex: 1; }
+  .btn { padding: 10px 24px; border: none; border-radius: 8px; font-size: 0.95em; font-weight: 600; cursor: pointer; transition: all 0.2s; }
+  .btn-primary { background: #0f3460; color: #fff; }
+  .btn-primary:hover { background: #1a4a7a; }
+  .btn-secondary { background: #e8e8e8; color: #333; }
+  .btn-secondary:hover { background: #d0d0d0; }
+  .btn-success { background: #4caf50; color: #fff; }
+  .btn-success:hover { background: #43a047; }
+  .btn-danger { background: #e53935; color: #fff; }
+  .btn-danger:hover { background: #c62828; }
+  .btn-group { display: flex; gap: 10px; margin-top: 20px; justify-content: flex-end; }
+  .ubicacion-card { background: #f8f9fa; border: 1px solid #e0e0e0; border-radius: 10px; padding: 18px; margin-bottom: 12px; }
+  .ubicacion-card h3 { font-size: 1em; color: #0f3460; margin-bottom: 12px; }
+  .insumo-row { display: flex; gap: 8px; align-items: center; margin-bottom: 8px; }
+  .insumo-row label { margin: 0; flex: 2; font-weight: 400; font-size: 0.85em; }
+  .insumo-row input { flex: 1; }
+  .insumo-row select { flex: 1; }
+  .insumo-precio { flex: 1; text-align: right; font-size: 0.85em; color: #666; white-space: nowrap; }
+  .resumen-table { width: 100%; border-collapse: collapse; margin: 10px 0; }
+  .resumen-table th, .resumen-table td { padding: 8px 10px; text-align: left; border-bottom: 1px solid #e8e8e8; font-size: 0.9em; }
+  .resumen-table th { background: #f0f2f5; font-weight: 600; }
+  .resumen-table .total-row td { font-weight: 700; border-top: 2px solid #0f3460; }
+  .resumen-table .subtotal-row td { font-weight: 600; background: #f8f9fa; }
+  .resumen-final { background: #16213e; color: #fff; border-radius: 10px; padding: 20px; margin-top: 15px; }
+  .resumen-final .line { display: flex; justify-content: space-between; padding: 6px 0; font-size: 0.95em; }
+  .resumen-final .line.big { font-size: 1.15em; font-weight: 700; border-top: 1px solid rgba(255,255,255,0.2); padding-top: 12px; margin-top: 6px; }
+  .aviso { background: #fff3cd; border: 1px solid #ffc107; border-radius: 8px; padding: 12px; margin-bottom: 15px; font-size: 0.9em; }
+  .tag { display: inline-block; background: #e3f2fd; color: #0f3460; padding: 3px 10px; border-radius: 12px; font-size: 0.8em; font-weight: 600; margin-left: 8px; }
+  pre.cotizacion-txt { background: #1a1a2e; color: #e0e0e0; padding: 20px; border-radius: 10px; font-size: 0.8em; line-height: 1.5; overflow-x: auto; white-space: pre; }
+  .hidden { display: none; }
+  @media (max-width: 600px) {
+    .row { flex-direction: column; gap: 0; }
+    .insumo-row { flex-wrap: wrap; }
+  }
+</style>
+</head>
+<body>
+<div class="header">
+  <div>
+    <h1>Cotizador de Control de Plagas</h1>
+    <div class="precios-info" id="preciosInfo"></div>
+  </div>
+</div>
+
+<div class="container">
+  <div class="step-indicator" id="stepIndicator"></div>
+
+  <!-- PASO 1: Tipo de cliente -->
+  <div class="step active" id="step1">
+    <h2>Paso 1 - Tipo de cliente</h2>
+    <label>¿Cuantas ubicaciones tiene el cliente?</label>
+    <div class="row" style="margin-top:10px">
+      <div>
+        <select id="tipoCliente">
+          <option value="unica">Ubicacion unica</option>
+          <option value="multiple">Multiples sucursales</option>
+        </select>
+      </div>
+      <div id="cantUbicacionesWrap" class="hidden">
+        <input type="number" id="cantUbicaciones" min="2" max="20" value="2" placeholder="Cant. ubicaciones">
+      </div>
+    </div>
+    <div class="btn-group">
+      <button class="btn btn-primary" onclick="goStep2()">Siguiente</button>
+    </div>
+  </div>
+
+  <!-- PASO 2: Ubicaciones -->
+  <div class="step" id="step2">
+    <h2>Paso 2 - Datos de ubicaciones</h2>
+    <div id="ubicacionesForms"></div>
+    <div class="btn-group">
+      <button class="btn btn-secondary" onclick="showStep(1)">Atras</button>
+      <button class="btn btn-primary" onclick="goStep3()">Siguiente</button>
+    </div>
+  </div>
+
+  <!-- PASO 3: Detalle operativo -->
+  <div class="step" id="step3">
+    <h2>Paso 3 - Detalle operativo</h2>
+    <div id="operativoForms"></div>
+    <div class="btn-group">
+      <button class="btn btn-secondary" onclick="showStep(2)">Atras</button>
+      <button class="btn btn-primary" onclick="goStep4()">Siguiente</button>
+    </div>
+  </div>
+
+  <!-- PASO 4: Insumos -->
+  <div class="step" id="step4">
+    <h2>Paso 4 - Insumos por ubicacion</h2>
+    <div id="insumosForms"></div>
+    <div class="btn-group">
+      <button class="btn btn-secondary" onclick="showStep(3)">Atras</button>
+      <button class="btn btn-primary" onclick="goStep5()">Siguiente</button>
+    </div>
+  </div>
+
+  <!-- PASO 5: Horas admin + Condiciones -->
+  <div class="step" id="step5">
+    <h2>Paso 5 - Horas administrativas y condiciones</h2>
+    <div class="row">
+      <div>
+        <label>Horas administrativas mensuales</label>
+        <input type="number" id="horasAdmin" min="0" value="0" step="0.5">
+      </div>
+      <div>
+        <label>Valor hora administrativa</label>
+        <input type="text" id="valorHoraAdmin" readonly>
+      </div>
+    </div>
+    <hr style="margin:20px 0;border:none;border-top:1px solid #e8e8e8">
+    <label>Condiciones particulares</label>
+    <div class="row">
+      <div>
+        <select id="condTipo">
+          <option value="ninguno">Sin condiciones</option>
+          <option value="porcentaje">Porcentaje sobre mensual</option>
+          <option value="monto_fijo">Monto fijo</option>
+        </select>
+      </div>
+      <div>
+        <input type="number" id="condValor" min="0" value="0" placeholder="Valor" disabled>
+      </div>
+    </div>
+    <div id="condDescWrap" class="hidden" style="margin-top:10px">
+      <label>Motivo / descripcion</label>
+      <input type="text" id="condDesc" placeholder="Ej: cliente dificil, zona peligrosa...">
+    </div>
+    <div class="btn-group">
+      <button class="btn btn-secondary" onclick="showStep(4)">Atras</button>
+      <button class="btn btn-primary" onclick="goStep6()">Calcular</button>
+    </div>
+  </div>
+
+  <!-- PASO 6: Resumen costos -->
+  <div class="step" id="step6">
+    <h2>Paso 6 - Resumen de costos</h2>
+    <div id="resumenCostos"></div>
+    <div class="btn-group">
+      <button class="btn btn-secondary" onclick="showStep(5)">Modificar</button>
+      <button class="btn btn-primary" onclick="goStep7()">Confirmar y completar datos del cliente</button>
+    </div>
+  </div>
+
+  <!-- PASO 7: Datos del cliente -->
+  <div class="step" id="step7">
+    <h2>Paso 7 - Datos del cliente</h2>
+    <label>Razon Social</label>
+    <input type="text" id="razonSocial">
+    <div class="row">
+      <div>
+        <label>CUIT (XX-XXXXXXXX-X)</label>
+        <input type="text" id="cuit" placeholder="30-12345678-9">
+      </div>
+      <div>
+        <label>Telefono de contacto</label>
+        <input type="text" id="telefono">
+      </div>
+    </div>
+    <div class="row">
+      <div>
+        <label>Nombre del contacto</label>
+        <input type="text" id="contactoNombre">
+      </div>
+      <div>
+        <label>Cargo</label>
+        <input type="text" id="contactoCargo">
+      </div>
+    </div>
+    <div class="btn-group">
+      <button class="btn btn-secondary" onclick="showStep(6)">Atras</button>
+      <button class="btn btn-success" onclick="generarCotizacion()">Generar cotizacion</button>
+    </div>
+  </div>
+
+  <!-- PASO 8: Cotizacion final -->
+  <div class="step" id="step8">
+    <h2>Cotizacion generada</h2>
+    <pre class="cotizacion-txt" id="cotizacionTxt"></pre>
+    <div class="btn-group">
+      <button class="btn btn-secondary" onclick="showStep(7)">Atras</button>
+      <button class="btn btn-primary" onclick="descargarTxt()">Descargar TXT</button>
+      <button class="btn btn-success" onclick="nuevaCotizacion()">Nueva cotizacion</button>
+    </div>
+  </div>
+</div>
+
+<script>
+let precios = null;
+const STEPS = 8;
+
+// Formato argentino
+function fmt(n) {
+  return '$' + Math.round(n).toString().replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+}
+
+// Cargar precios
+fetch('data/precios.json')
+  .then(r => r.json())
+  .then(data => {
+    precios = data;
+    document.getElementById('preciosInfo').textContent =
+      'Precios actualizados: ' + data.metadata.ultima_actualizacion + ' | ' + data.metadata.moneda;
+    document.getElementById('valorHoraAdmin').value = fmt(data.mano_de_obra.valor_hora_administrativa);
+    buildStepIndicator();
+
+    // Check fecha
+    const parts = data.metadata.ultima_actualizacion.split('-');
+    const updDate = new Date(parts[0], parts[1]-1, parts[2]);
+    const diff = (Date.now() - updDate) / (1000*60*60*24);
+    if (diff > 60) {
+      const aviso = document.createElement('div');
+      aviso.className = 'aviso';
+      aviso.textContent = 'ATENCION: Los precios no se actualizan desde ' + data.metadata.ultima_actualizacion + '. Considere actualizarlos.';
+      document.querySelector('.container').prepend(aviso);
+    }
+  })
+  .catch(() => {
+    document.getElementById('preciosInfo').textContent = 'Error cargando precios.json';
+  });
+
+function buildStepIndicator() {
+  const ind = document.getElementById('stepIndicator');
+  ind.innerHTML = '';
+  for (let i = 1; i <= STEPS; i++) {
+    const d = document.createElement('div');
+    d.className = 'dot' + (i === 1 ? ' active' : '');
+    d.id = 'dot' + i;
+    d.textContent = i;
+    ind.appendChild(d);
+  }
+}
+
+function showStep(n) {
+  document.querySelectorAll('.step').forEach(s => s.classList.remove('active'));
+  document.getElementById('step' + n).classList.add('active');
+  document.querySelectorAll('.dot').forEach((d, i) => {
+    d.className = 'dot' + (i + 1 === n ? ' active' : (i + 1 < n ? ' done' : ''));
+  });
+  window.scrollTo({top: 0, behavior: 'smooth'});
+}
+
+// Tipo cliente toggle
+document.getElementById('tipoCliente').addEventListener('change', function() {
+  document.getElementById('cantUbicacionesWrap').classList.toggle('hidden', this.value === 'unica');
+});
+
+document.getElementById('condTipo').addEventListener('change', function() {
+  const v = this.value;
+  document.getElementById('condValor').disabled = v === 'ninguno';
+  document.getElementById('condDescWrap').classList.toggle('hidden', v === 'ninguno');
+});
+
+// PASO 2: Generar forms de ubicaciones
+function goStep2() {
+  const tipo = document.getElementById('tipoCliente').value;
+  const cant = tipo === 'unica' ? 1 : parseInt(document.getElementById('cantUbicaciones').value) || 2;
+  const container = document.getElementById('ubicacionesForms');
+  container.innerHTML = '';
+  for (let i = 0; i < cant; i++) {
+    const card = document.createElement('div');
+    card.className = 'ubicacion-card';
+    card.innerHTML = `
+      <h3>Ubicacion ${cant > 1 ? (i+1) : 'Principal'}</h3>
+      <label>Nombre</label>
+      <input type="text" class="ub-nombre" value="${cant > 1 ? 'Sucursal ' + (i+1) : 'Principal'}">
+      <label>Direccion</label>
+      <input type="text" class="ub-dir" placeholder="Direccion completa">
+      <div class="row">
+        <div><label>Superficie (m2)</label><input type="number" class="ub-m2" min="1" value="100"></div>
+        <div><label>Frecuencia</label>
+          <select class="ub-freq"><option>Mensual</option><option>Quincenal</option><option>Semanal</option></select>
+        </div>
+      </div>
+      <div class="row">
+        <div><label>Dia preferido</label>
+          <select class="ub-dia">
+            <option>Lunes a Viernes</option>
+            <option>Sabado manana</option>
+            <option>Sabado tarde</option>
+            <option>Domingo</option>
+          </select>
+        </div>
+        <div><label>Horario</label>
+          <select class="ub-horario">
+            <option>Diurno (8-18hs)</option>
+            <option>Nocturno (despues 22hs)</option>
+          </select>
+        </div>
+      </div>`;
+    container.appendChild(card);
+  }
+  showStep(2);
+}
+
+// PASO 3: Detalle operativo
+function goStep3() {
+  const nombres = document.querySelectorAll('.ub-nombre');
+  const container = document.getElementById('operativoForms');
+  container.innerHTML = '';
+  nombres.forEach((n, i) => {
+    const card = document.createElement('div');
+    card.className = 'ubicacion-card';
+    card.innerHTML = `
+      <h3>${n.value}</h3>
+      <div class="row">
+        <div><label>Horas por visita</label><input type="number" class="op-horas" min="0.5" step="0.5" value="2"></div>
+        <div><label>Operarios por visita</label><input type="number" class="op-operarios" min="1" value="1"></div>
+        <div><label>Visitas mensuales</label><input type="number" class="op-visitas" min="1" value="4"></div>
+      </div>`;
+    container.appendChild(card);
+  });
+  showStep(3);
+}
+
+// PASO 4: Insumos
+function goStep4() {
+  const nombres = document.querySelectorAll('.ub-nombre');
+  const container = document.getElementById('insumosForms');
+  container.innerHTML = '';
+  nombres.forEach((n, i) => {
+    const card = document.createElement('div');
+    card.className = 'ubicacion-card';
+    let html = `<h3>${n.value}</h3>`;
+    for (const [key, ins] of Object.entries(precios.insumos)) {
+      const descTag = key === 'trampa_uv' ? '<span class="tag">Desc. por cant.</span>' : '';
+      html += `
+        <div class="insumo-row">
+          <label>${ins.nombre} ${descTag}</label>
+          <div class="insumo-precio">${fmt(ins.precio_unitario)}/${ins.unidad}</div>
+          <input type="number" class="ins-cant" data-key="${key}" data-ub="${i}" min="0" value="0" style="width:70px">
+          <select class="ins-tipo" data-key="${key}" data-ub="${i}" style="width:90px">
+            <option value="U">Unico</option>
+            <option value="M">Mensual</option>
+          </select>
+        </div>`;
+    }
+    card.innerHTML = html;
+    container.appendChild(card);
+  });
+  showStep(4);
+}
+
+// PASO 5 -> 6: Calcular
+function goStep5() { showStep(5); }
+
+function goStep6() {
+  calcular();
+  showStep(6);
+}
+
+function getUbicaciones() {
+  const ubNames = document.querySelectorAll('.ub-nombre');
+  const ubDirs = document.querySelectorAll('.ub-dir');
+  const ubM2 = document.querySelectorAll('.ub-m2');
+  const ubFreq = document.querySelectorAll('.ub-freq');
+  const ubDia = document.querySelectorAll('.ub-dia');
+  const ubHor = document.querySelectorAll('.ub-horario');
+  const opHoras = document.querySelectorAll('.op-horas');
+  const opOps = document.querySelectorAll('.op-operarios');
+  const opVis = document.querySelectorAll('.op-visitas');
+
+  const ubicaciones = [];
+  ubNames.forEach((_, i) => {
+    // Ajustes por dia/horario
+    let ajuste = 0;
+    let ajusteDesc = [];
+    const dia = ubDia[i].value;
+    const hor = ubHor[i].value;
+    if (hor.includes('Nocturno')) { ajuste += precios.ajustes.nocturno.porcentaje; ajusteDesc.push('Nocturno +' + precios.ajustes.nocturno.porcentaje + '%'); }
+    if (dia === 'Domingo') { ajuste += precios.ajustes.domingo.porcentaje; ajusteDesc.push('Domingo +' + precios.ajustes.domingo.porcentaje + '%'); }
+    if (dia === 'Sabado tarde') { ajuste += precios.ajustes.sabado_post_13.porcentaje; ajusteDesc.push('Sab post 13hs +' + precios.ajustes.sabado_post_13.porcentaje + '%'); }
+
+    const horas = parseFloat(opHoras[i].value) || 0;
+    const operarios = parseInt(opOps[i].value) || 0;
+    const visitas = parseInt(opVis[i].value) || 0;
+    const costoOp = horas * precios.mano_de_obra.valor_hora_operario * operarios * visitas * (1 + ajuste / 100);
+
+    // Insumos
+    const insumos = [];
+    document.querySelectorAll(`.ins-cant[data-ub="${i}"]`).forEach((inp, j) => {
+      const cant = parseInt(inp.value) || 0;
+      if (cant > 0) {
+        const key = inp.dataset.key;
+        const tipo = document.querySelectorAll(`.ins-tipo[data-ub="${i}"]`)[j].value;
+        insumos.push({ key, cant, tipo, nombre: precios.insumos[key].nombre, precio: precios.insumos[key].precio_unitario, unidad: precios.insumos[key].unidad });
+      }
+    });
+
+    ubicaciones.push({
+      nombre: ubNames[i].value,
+      direccion: ubDirs[i].value,
+      m2: ubM2[i].value,
+      frecuencia: ubFreq[i].value,
+      dia, horario: hor,
+      horas, operarios, visitas,
+      ajuste, ajusteDesc: ajusteDesc.length ? ajusteDesc.join(', ') : 'Ninguno',
+      costoOp,
+      insumos
+    });
+  });
+  return ubicaciones;
+}
+
+function getDescuentoTrampa(cantTotal) {
+  const tramos = precios.insumos.trampa_uv.descuentos_mayoristas;
+  for (const t of tramos) {
+    if (cantTotal >= t.desde && (t.hasta === null || cantTotal <= t.hasta)) return t.descuento;
+  }
+  return 0;
+}
+
+function calcular() {
+  const ubicaciones = getUbicaciones();
+
+  // Calcular total trampas UV para descuento
+  let totalTrampas = 0;
+  ubicaciones.forEach(u => u.insumos.forEach(ins => { if (ins.key === 'trampa_uv') totalTrampas += ins.cant; }));
+  const descTrampa = getDescuentoTrampa(totalTrampas);
+
+  let html = '';
+  let subtotalMensual = 0;
+  let totalInsIniciales = 0;
+
+  ubicaciones.forEach(u => {
+    let insUnicosHtml = '';
+    let insMensualesHtml = '';
+    let totalU = 0, totalM = 0;
+
+    u.insumos.forEach(ins => {
+      let precio = ins.precio;
+      let descText = '';
+      if (ins.key === 'trampa_uv' && descTrampa > 0) {
+        precio = ins.precio * (1 - descTrampa / 100);
+        descText = ` (-${descTrampa}%)`;
+      }
+      const sub = ins.cant * precio;
+      const row = `<tr><td>${ins.cant}</td><td>${ins.nombre}${descText}</td><td>${fmt(precio)}</td><td>${fmt(sub)}</td></tr>`;
+      if (ins.tipo === 'U') { insUnicosHtml += row; totalU += sub; }
+      else { insMensualesHtml += row; totalM += sub; }
+    });
+
+    const servMensual = u.costoOp + totalM;
+    subtotalMensual += servMensual;
+    totalInsIniciales += totalU;
+
+    html += `<div class="ubicacion-card">
+      <h3>${u.nombre} <span class="tag">${u.frecuencia}</span>${u.ajuste > 0 ? '<span class="tag" style="background:#fff3cd;color:#856404">Ajuste: ' + u.ajusteDesc + '</span>' : ''}</h3>
+      <p style="font-size:0.85em;color:#666;margin-bottom:10px">${u.direccion} | ${u.m2} m2 | ${u.dia} | ${u.horario}</p>
+      <table class="resumen-table">
+        <tr><th colspan="4">Detalle operativo</th></tr>
+        <tr><td>${u.horas}hs</td><td>${u.operarios} operario(s)</td><td>${u.visitas} visitas/mes</td><td><strong>${fmt(u.costoOp)}</strong></td></tr>
+      </table>`;
+
+    if (insUnicosHtml) {
+      html += `<table class="resumen-table">
+        <tr><th>Cant</th><th>Insumo (Unico)</th><th>P.Unit</th><th>Subtotal</th></tr>
+        ${insUnicosHtml}
+        <tr class="subtotal-row"><td colspan="3">Total insumos unicos</td><td>${fmt(totalU)}</td></tr>
+      </table>`;
+    }
+    if (insMensualesHtml) {
+      html += `<table class="resumen-table">
+        <tr><th>Cant</th><th>Insumo (Mensual)</th><th>P.Unit</th><th>Subtotal</th></tr>
+        ${insMensualesHtml}
+        <tr class="subtotal-row"><td colspan="3">Total insumos mensuales</td><td>${fmt(totalM)}</td></tr>
+      </table>`;
+    }
+
+    html += `<table class="resumen-table">
+      <tr class="total-row"><td colspan="3">Servicio mensual (operativo + insumos)</td><td>${fmt(servMensual)}</td></tr>
+      <tr><td colspan="3">Insumos instalacion inicial</td><td>${fmt(totalU)}</td></tr>
+    </table></div>`;
+  });
+
+  // Horas admin
+  const horasAdmin = parseFloat(document.getElementById('horasAdmin').value) || 0;
+  const costoAdmin = horasAdmin * precios.mano_de_obra.valor_hora_administrativa;
+
+  // Condiciones particulares
+  const condTipo = document.getElementById('condTipo').value;
+  const condValor = parseFloat(document.getElementById('condValor').value) || 0;
+  const condDesc = document.getElementById('condDesc').value || '';
+  let ajusteParticular = 0;
+  if (condTipo === 'porcentaje') ajusteParticular = (subtotalMensual + costoAdmin) * condValor / 100;
+  else if (condTipo === 'monto_fijo') ajusteParticular = condValor;
+
+  const valorMensualTotal = subtotalMensual + costoAdmin + ajusteParticular;
+  const valorInicialTotal = valorMensualTotal + totalInsIniciales;
+
+  html += `<div class="resumen-final">
+    <div class="line"><span>Subtotal mensual (ubicaciones)</span><span>${fmt(subtotalMensual)}</span></div>`;
+  if (horasAdmin > 0) html += `<div class="line"><span>Horas administrativas (${horasAdmin}hs x ${fmt(precios.mano_de_obra.valor_hora_administrativa)})</span><span>${fmt(costoAdmin)}</span></div>`;
+  if (ajusteParticular > 0) html += `<div class="line"><span>Condiciones particulares${condDesc ? ' (' + condDesc + ')' : ''} ${condTipo === 'porcentaje' ? condValor + '%' : ''}</span><span>${fmt(ajusteParticular)}</span></div>`;
+  if (totalInsIniciales > 0) html += `<div class="line"><span>Insumos instalacion inicial</span><span>${fmt(totalInsIniciales)}</span></div>`;
+  html += `<div class="line big"><span>VALOR MES INICIAL</span><span>${fmt(valorInicialTotal)}</span></div>
+    <div class="line big"><span>VALOR MENSUAL RECURRENTE</span><span>${fmt(valorMensualTotal)}</span></div>
+  </div>`;
+
+  if (descTrampa > 0) {
+    html = `<div class="aviso">Descuento mayorista Trampas UV: ${descTrampa}% (${totalTrampas} unidades totales)</div>` + html;
+  }
+
+  document.getElementById('resumenCostos').innerHTML = html;
+
+  // Store for TXT
+  window._cotData = { ubicaciones, subtotalMensual, costoAdmin, horasAdmin, ajusteParticular, condTipo, condValor, condDesc, valorMensualTotal, totalInsIniciales, valorInicialTotal, descTrampa, totalTrampas };
+}
+
+function goStep7() { showStep(7); }
+
+function generarCotizacion() {
+  const d = window._cotData;
+  const rs = document.getElementById('razonSocial').value || 'SIN RAZON SOCIAL';
+  const cuit = document.getElementById('cuit').value || 'XX-XXXXXXXX-X';
+  const tel = document.getElementById('telefono').value || '-';
+  const contacto = document.getElementById('contactoNombre').value || '-';
+  const cargo = document.getElementById('contactoCargo').value || '-';
+  const now = new Date();
+  const fecha = now.toLocaleDateString('es-AR', {day:'2-digit',month:'2-digit',year:'numeric'});
+  const hora = now.toLocaleTimeString('es-AR', {hour:'2-digit',minute:'2-digit'});
+  const num = '0001'; // correlativo simple
+
+  let txt = `================================================================
+          COTIZACION DE SERVICIO DE CONTROL DE PLAGAS
+================================================================
+Cotizacion N.: COT-${num}        Fecha: ${fecha}
+----------------------------------------------------------------
+DATOS DEL CLIENTE
+Razon Social: ${rs}
+CUIT: ${cuit}
+Contacto: ${contacto} - ${cargo}
+Telefono: ${tel}
+================================================================\n`;
+
+  d.ubicaciones.forEach(u => {
+    txt += `\nUBICACION: ${u.nombre}
+Direccion: ${u.direccion}
+Superficie: ${u.m2} m2
+Frecuencia: ${u.frecuencia} | Dia: ${u.dia} | Horario: ${u.horario}
+----------------------------------------------------------------
+  DETALLE OPERATIVO
+  Horas por visita: ${u.horas}
+  Operarios por visita: ${u.operarios}
+  Visitas mensuales: ${u.visitas}
+  Ajuste aplicado: ${u.ajusteDesc}
+  TOTAL OPERATIVO MENSUAL:              ${fmt(u.costoOp)}\n`;
+
+    const unicos = u.insumos.filter(i => i.tipo === 'U');
+    const mensuales = u.insumos.filter(i => i.tipo === 'M');
+
+    if (unicos.length) {
+      txt += `\n  INSUMOS UNICOS (instalacion inicial)
+  Cant  Descripcion              P.Unit      Subtotal
+  ---   -----------              ------      --------\n`;
+      let tU = 0;
+      unicos.forEach(ins => {
+        let p = ins.precio;
+        if (ins.key === 'trampa_uv' && d.descTrampa > 0) p = ins.precio * (1 - d.descTrampa / 100);
+        const s = ins.cant * p;
+        tU += s;
+        txt += `  ${String(ins.cant).padEnd(6)}${ins.nombre.padEnd(25)}${fmt(p).padStart(10)}  ${fmt(s).padStart(10)}\n`;
+      });
+      txt += `  TOTAL INSUMOS UNICOS:                 ${fmt(tU)}\n`;
+    }
+
+    if (mensuales.length) {
+      txt += `\n  INSUMOS MENSUALES (recurrentes)
+  Cant  Descripcion              P.Unit      Subtotal
+  ---   -----------              ------      --------\n`;
+      let tM = 0;
+      mensuales.forEach(ins => {
+        let p = ins.precio;
+        if (ins.key === 'trampa_uv' && d.descTrampa > 0) p = ins.precio * (1 - d.descTrampa / 100);
+        const s = ins.cant * p;
+        tM += s;
+        txt += `  ${String(ins.cant).padEnd(6)}${ins.nombre.padEnd(25)}${fmt(p).padStart(10)}  ${fmt(s).padStart(10)}\n`;
+      });
+      txt += `  TOTAL INSUMOS MENSUALES:              ${fmt(tM)}\n`;
+    }
+
+    const tU = unicos.reduce((s, ins) => { let p = ins.precio; if (ins.key === 'trampa_uv' && d.descTrampa > 0) p = ins.precio * (1 - d.descTrampa / 100); return s + ins.cant * p; }, 0);
+    const tM = mensuales.reduce((s, ins) => { let p = ins.precio; if (ins.key === 'trampa_uv' && d.descTrampa > 0) p = ins.precio * (1 - d.descTrampa / 100); return s + ins.cant * p; }, 0);
+
+    txt += `\n  ............................................................
+  RESUMEN UBICACION ${u.nombre}:
+    Servicio mensual (operativo + insumos):   ${fmt(u.costoOp + tM)}
+    Insumos de instalacion inicial:           ${fmt(tU)}
+  ............................................................\n
+================================================================\n`;
+  });
+
+  txt += `\n================================================================
+RESUMEN GENERAL
+================================================================
+  Subtotal mensual (todas las ubicaciones):  ${fmt(d.subtotalMensual)}\n`;
+  if (d.horasAdmin > 0) txt += `  Horas administrativas (${d.horasAdmin}hs x ${fmt(precios.mano_de_obra.valor_hora_administrativa)}):  ${fmt(d.costoAdmin)}\n`;
+  if (d.ajusteParticular > 0) txt += `  Condiciones particulares (${d.condDesc}):       ${fmt(d.ajusteParticular)}\n`;
+  txt += `  --------------------------------------------------------
+  VALOR MENSUAL TOTAL:                ${fmt(d.valorMensualTotal)}
+  Insumos de instalacion (todas):     ${fmt(d.totalInsIniciales)}
+  --------------------------------------------------------
+  VALOR MES INICIAL TOTAL:            ${fmt(d.valorInicialTotal)}
+  VALOR MENSUAL RECURRENTE:           ${fmt(d.valorMensualTotal)}
+================================================================
+Cotizacion generada el ${fecha} a las ${hora}hs
+================================================================`;
+
+  document.getElementById('cotizacionTxt').textContent = txt;
+  window._cotTxt = txt;
+  window._cotFileName = `COT-${num}_${rs.replace(/\s+/g, '-').replace(/[^a-zA-Z0-9-]/g, '')}_${now.getFullYear()}${String(now.getMonth()+1).padStart(2,'0')}${String(now.getDate()).padStart(2,'0')}.txt`;
+  showStep(8);
+}
+
+function descargarTxt() {
+  const blob = new Blob([window._cotTxt], {type: 'text/plain'});
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = window._cotFileName;
+  a.click();
+}
+
+function nuevaCotizacion() {
+  location.reload();
+}
+</script>
+</body>
+</html>
