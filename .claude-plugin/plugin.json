@@ -1,0 +1,5 @@
+{
+  "name": "cotizador",
+  "description": "Plugin para generar cotizaciones de servicios de control de plagas. Permite cotizar servicios para clientes con una o múltiples ubicaciones, gestionar precios de insumos y mantener un repositorio histórico de cotizaciones.",
+  "version": "1.0.0"
+}
