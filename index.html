@@ -30,8 +30,6 @@
   .btn-secondary:hover { background: #d0d0d0; }
   .btn-success { background: #4caf50; color: #fff; }
   .btn-success:hover { background: #43a047; }
-  .btn-danger { background: #e53935; color: #fff; }
-  .btn-danger:hover { background: #c62828; }
   .btn-group { display: flex; gap: 10px; margin-top: 20px; justify-content: flex-end; }
   .ubicacion-card { background: #f8f9fa; border: 1px solid #e0e0e0; border-radius: 10px; padding: 18px; margin-bottom: 12px; }
   .ubicacion-card h3 { font-size: 1em; color: #0f3460; margin-bottom: 12px; }
@@ -50,12 +48,8 @@
   .resumen-final .line.big { font-size: 1.15em; font-weight: 700; border-top: 1px solid rgba(255,255,255,0.2); padding-top: 12px; margin-top: 6px; }
   .aviso { background: #fff3cd; border: 1px solid #ffc107; border-radius: 8px; padding: 12px; margin-bottom: 15px; font-size: 0.9em; }
   .tag { display: inline-block; background: #e3f2fd; color: #0f3460; padding: 3px 10px; border-radius: 12px; font-size: 0.8em; font-weight: 600; margin-left: 8px; }
-  pre.cotizacion-txt { background: #1a1a2e; color: #e0e0e0; padding: 20px; border-radius: 10px; font-size: 0.8em; line-height: 1.5; overflow-x: auto; white-space: pre; }
   .hidden { display: none; }
-  @media (max-width: 600px) {
-    .row { flex-direction: column; gap: 0; }
-    .insumo-row { flex-wrap: wrap; }
-  }
+  @media (max-width: 600px) { .row { flex-direction: column; gap: 0; } .insumo-row { flex-wrap: wrap; } }
 </style>
 </head>
 <body>
@@ -65,14 +59,13 @@
     <div class="precios-info" id="preciosInfo"></div>
   </div>
 </div>
-
 <div class="container">
   <div class="step-indicator" id="stepIndicator"></div>
 
   <!-- PASO 1: Tipo de cliente -->
   <div class="step active" id="step1">
     <h2>Paso 1 - Tipo de cliente</h2>
-    <label>¿Cuantas ubicaciones tiene el cliente?</label>
+    <label>Cantidad de ubicaciones del cliente</label>
     <div class="row" style="margin-top:10px">
       <div>
         <select id="tipoCliente">
@@ -84,9 +77,7 @@
         <input type="number" id="cantUbicaciones" min="2" max="20" value="2" placeholder="Cant. ubicaciones">
       </div>
     </div>
-    <div class="btn-group">
-      <button class="btn btn-primary" onclick="goStep2()">Siguiente</button>
-    </div>
+    <div class="btn-group"><button class="btn btn-primary" onclick="goStep2()">Siguiente</button></div>
   </div>
 
   <!-- PASO 2: Ubicaciones -->
@@ -123,14 +114,8 @@
   <div class="step" id="step5">
     <h2>Paso 5 - Horas administrativas y condiciones</h2>
     <div class="row">
-      <div>
-        <label>Horas administrativas mensuales</label>
-        <input type="number" id="horasAdmin" min="0" value="0" step="0.5">
-      </div>
-      <div>
-        <label>Valor hora administrativa</label>
-        <input type="text" id="valorHoraAdmin" readonly>
-      </div>
+      <div><label>Horas administrativas mensuales</label><input type="number" id="horasAdmin" min="0" value="0" step="0.5"></div>
+      <div><label>Valor hora administrativa</label><input type="text" id="valorHoraAdmin" readonly></div>
     </div>
     <hr style="margin:20px 0;border:none;border-top:1px solid #e8e8e8">
     <label>Condiciones particulares</label>
@@ -142,9 +127,7 @@
           <option value="monto_fijo">Monto fijo</option>
         </select>
       </div>
-      <div>
-        <input type="number" id="condValor" min="0" value="0" placeholder="Valor" disabled>
-      </div>
+      <div><input type="number" id="condValor" min="0" value="0" placeholder="Valor" disabled></div>
     </div>
     <div id="condDescWrap" class="hidden" style="margin-top:10px">
       <label>Motivo / descripcion</label>
@@ -172,24 +155,12 @@
     <label>Razon Social</label>
     <input type="text" id="razonSocial">
     <div class="row">
-      <div>
-        <label>CUIT (XX-XXXXXXXX-X)</label>
-        <input type="text" id="cuit" placeholder="30-12345678-9">
-      </div>
-      <div>
-        <label>Telefono de contacto</label>
-        <input type="text" id="telefono">
-      </div>
+      <div><label>CUIT (XX-XXXXXXXX-X)</label><input type="text" id="cuit" placeholder="30-12345678-9"></div>
+      <div><label>Telefono de contacto</label><input type="text" id="telefono"></div>
     </div>
     <div class="row">
-      <div>
-        <label>Nombre del contacto</label>
-        <input type="text" id="contactoNombre">
-      </div>
-      <div>
-        <label>Cargo</label>
-        <input type="text" id="contactoCargo">
-      </div>
+      <div><label>Nombre del contacto</label><input type="text" id="contactoNombre"></div>
+      <div><label>Cargo</label><input type="text" id="contactoCargo"></div>
     </div>
     <div class="btn-group">
       <button class="btn btn-secondary" onclick="showStep(6)">Atras</button>
@@ -200,52 +171,65 @@
   <!-- PASO 8: Cotizacion final -->
   <div class="step" id="step8">
     <h2>Cotizacion generada</h2>
-    <pre class="cotizacion-txt" id="cotizacionTxt"></pre>
+    <p style="margin-bottom:15px;font-size:0.9em;color:#666">La cotizacion se abrio en una nueva ventana. Desde ahi podes imprimirla o guardarla como PDF (Ctrl+P).</p>
     <div class="btn-group">
       <button class="btn btn-secondary" onclick="showStep(7)">Atras</button>
-      <button class="btn btn-primary" onclick="descargarTxt()">Descargar TXT</button>
-      <button class="btn btn-success" onclick="nuevaCotizacion()">Nueva cotizacion</button>
+      <button class="btn btn-primary" onclick="abrirCotizacion()">Volver a abrir cotizacion</button>
+      <button class="btn btn-success" onclick="location.reload()">Nueva cotizacion</button>
     </div>
   </div>
 </div>
 
 <script>
-let precios = null;
-const STEPS = 8;
+// PRECIOS EMBEBIDOS - Actualizar aca cuando cambien los precios
+const precios = {
+  "metadata": { "ultima_actualizacion": "2026-02-11", "moneda": "ARS" },
+  "ajustes": {
+    "nocturno": { "descripcion": "Servicio en horario nocturno", "porcentaje": 15 },
+    "domingo": { "descripcion": "Servicio en dia domingo", "porcentaje": 35 },
+    "sabado_post_13": { "descripcion": "Servicio sabado despues de las 13hs", "porcentaje": 15 }
+  },
+  "mano_de_obra": { "valor_hora_operario": 50000, "valor_hora_administrativa": 50000 },
+  "insumos": {
+    "caja_cebadera": { "nombre": "Caja cebadera", "precio_unitario": 5500, "unidad": "unidad" },
+    "placa_uv": { "nombre": "Placa UV", "precio_unitario": 1550, "unidad": "unidad" },
+    "placa_roe": { "nombre": "Placa ROE", "precio_unitario": 2500, "unidad": "unidad" },
+    "trampa_uv": { "nombre": "Trampa UV", "precio_unitario": 85000, "unidad": "unidad",
+      "descuentos_mayoristas": [
+        { "desde": 1, "hasta": 4, "descuento": 0 },
+        { "desde": 5, "hasta": 9, "descuento": 5 },
+        { "desde": 10, "hasta": 19, "descuento": 10 },
+        { "desde": 20, "hasta": null, "descuento": 15 }
+      ]
+    },
+    "und_33_3": { "nombre": "UND 33.3", "precio_unitario": 2600, "unidad": "unidad" },
+    "etiqueta_cb": { "nombre": "Etiqueta CB", "precio_unitario": 400, "unidad": "unidad" },
+    "etiqueta_pared": { "nombre": "Etiqueta Pared", "precio_unitario": 275, "unidad": "unidad" },
+    "metro_lineal_pincho": { "nombre": "Metro lineal de Pincho", "precio_unitario": 7800, "unidad": "metro" }
+  }
+};
 
-// Formato argentino
-function fmt(n) {
-  return '$' + Math.round(n).toString().replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+const STEPS = 8;
+let cotizacionWindow = null;
+
+function fmt(n) { return '$' + Math.round(n).toString().replace(/\B(?=(\d{3})+(?!\d))/g, '.'); }
+
+document.getElementById('preciosInfo').textContent = 'Precios: ' + precios.metadata.ultima_actualizacion + ' | ' + precios.metadata.moneda;
+document.getElementById('valorHoraAdmin').value = fmt(precios.mano_de_obra.valor_hora_administrativa);
+
+// Check fecha
+const parts = precios.metadata.ultima_actualizacion.split('-');
+const updDate = new Date(parts[0], parts[1]-1, parts[2]);
+if ((Date.now() - updDate) / (1000*60*60*24) > 60) {
+  const aviso = document.createElement('div');
+  aviso.className = 'aviso';
+  aviso.textContent = 'ATENCION: Los precios no se actualizan desde ' + precios.metadata.ultima_actualizacion;
+  document.querySelector('.container').prepend(aviso);
 }
 
-// Cargar precios
-fetch('data/precios.json')
-  .then(r => r.json())
-  .then(data => {
-    precios = data;
-    document.getElementById('preciosInfo').textContent =
-      'Precios actualizados: ' + data.metadata.ultima_actualizacion + ' | ' + data.metadata.moneda;
-    document.getElementById('valorHoraAdmin').value = fmt(data.mano_de_obra.valor_hora_administrativa);
-    buildStepIndicator();
-
-    // Check fecha
-    const parts = data.metadata.ultima_actualizacion.split('-');
-    const updDate = new Date(parts[0], parts[1]-1, parts[2]);
-    const diff = (Date.now() - updDate) / (1000*60*60*24);
-    if (diff > 60) {
-      const aviso = document.createElement('div');
-      aviso.className = 'aviso';
-      aviso.textContent = 'ATENCION: Los precios no se actualizan desde ' + data.metadata.ultima_actualizacion + '. Considere actualizarlos.';
-      document.querySelector('.container').prepend(aviso);
-    }
-  })
-  .catch(() => {
-    document.getElementById('preciosInfo').textContent = 'Error cargando precios.json';
-  });
-
-function buildStepIndicator() {
+// Step indicator
+(function() {
   const ind = document.getElementById('stepIndicator');
-  ind.innerHTML = '';
   for (let i = 1; i <= STEPS; i++) {
     const d = document.createElement('div');
     d.className = 'dot' + (i === 1 ? ' active' : '');
@@ -253,399 +237,289 @@ function buildStepIndicator() {
     d.textContent = i;
     ind.appendChild(d);
   }
-}
+})();
 
 function showStep(n) {
   document.querySelectorAll('.step').forEach(s => s.classList.remove('active'));
   document.getElementById('step' + n).classList.add('active');
   document.querySelectorAll('.dot').forEach((d, i) => {
-    d.className = 'dot' + (i + 1 === n ? ' active' : (i + 1 < n ? ' done' : ''));
+    d.className = 'dot' + (i+1 === n ? ' active' : (i+1 < n ? ' done' : ''));
   });
   window.scrollTo({top: 0, behavior: 'smooth'});
 }
 
-// Tipo cliente toggle
 document.getElementById('tipoCliente').addEventListener('change', function() {
   document.getElementById('cantUbicacionesWrap').classList.toggle('hidden', this.value === 'unica');
 });
-
 document.getElementById('condTipo').addEventListener('change', function() {
-  const v = this.value;
-  document.getElementById('condValor').disabled = v === 'ninguno';
-  document.getElementById('condDescWrap').classList.toggle('hidden', v === 'ninguno');
+  document.getElementById('condValor').disabled = this.value === 'ninguno';
+  document.getElementById('condDescWrap').classList.toggle('hidden', this.value === 'ninguno');
 });
 
-// PASO 2: Generar forms de ubicaciones
 function goStep2() {
   const tipo = document.getElementById('tipoCliente').value;
   const cant = tipo === 'unica' ? 1 : parseInt(document.getElementById('cantUbicaciones').value) || 2;
-  const container = document.getElementById('ubicacionesForms');
-  container.innerHTML = '';
+  const c = document.getElementById('ubicacionesForms');
+  c.innerHTML = '';
   for (let i = 0; i < cant; i++) {
     const card = document.createElement('div');
     card.className = 'ubicacion-card';
-    card.innerHTML = `
-      <h3>Ubicacion ${cant > 1 ? (i+1) : 'Principal'}</h3>
-      <label>Nombre</label>
-      <input type="text" class="ub-nombre" value="${cant > 1 ? 'Sucursal ' + (i+1) : 'Principal'}">
-      <label>Direccion</label>
-      <input type="text" class="ub-dir" placeholder="Direccion completa">
+    card.innerHTML = `<h3>Ubicacion ${cant > 1 ? (i+1) : 'Principal'}</h3>
+      <label>Nombre</label><input type="text" class="ub-nombre" value="${cant > 1 ? 'Sucursal '+(i+1) : 'Principal'}">
+      <label>Direccion</label><input type="text" class="ub-dir" placeholder="Direccion completa">
       <div class="row">
         <div><label>Superficie (m2)</label><input type="number" class="ub-m2" min="1" value="100"></div>
-        <div><label>Frecuencia</label>
-          <select class="ub-freq"><option>Mensual</option><option>Quincenal</option><option>Semanal</option></select>
-        </div>
+        <div><label>Frecuencia</label><select class="ub-freq"><option>Mensual</option><option>Quincenal</option><option>Semanal</option></select></div>
       </div>
       <div class="row">
-        <div><label>Dia preferido</label>
-          <select class="ub-dia">
-            <option>Lunes a Viernes</option>
-            <option>Sabado manana</option>
-            <option>Sabado tarde</option>
-            <option>Domingo</option>
-          </select>
-        </div>
-        <div><label>Horario</label>
-          <select class="ub-horario">
-            <option>Diurno (8-18hs)</option>
-            <option>Nocturno (despues 22hs)</option>
-          </select>
-        </div>
+        <div><label>Dia preferido</label><select class="ub-dia"><option>Lunes a Viernes</option><option>Sabado manana</option><option>Sabado tarde</option><option>Domingo</option></select></div>
+        <div><label>Horario</label><select class="ub-horario"><option>Diurno (8-18hs)</option><option>Nocturno (despues 22hs)</option></select></div>
       </div>`;
-    container.appendChild(card);
+    c.appendChild(card);
   }
   showStep(2);
 }
 
-// PASO 3: Detalle operativo
 function goStep3() {
-  const nombres = document.querySelectorAll('.ub-nombre');
-  const container = document.getElementById('operativoForms');
-  container.innerHTML = '';
-  nombres.forEach((n, i) => {
+  const c = document.getElementById('operativoForms');
+  c.innerHTML = '';
+  document.querySelectorAll('.ub-nombre').forEach((n, i) => {
     const card = document.createElement('div');
     card.className = 'ubicacion-card';
-    card.innerHTML = `
-      <h3>${n.value}</h3>
+    card.innerHTML = `<h3>${n.value}</h3>
       <div class="row">
         <div><label>Horas por visita</label><input type="number" class="op-horas" min="0.5" step="0.5" value="2"></div>
-        <div><label>Operarios por visita</label><input type="number" class="op-operarios" min="1" value="1"></div>
-        <div><label>Visitas mensuales</label><input type="number" class="op-visitas" min="1" value="4"></div>
+        <div><label>Operarios</label><input type="number" class="op-operarios" min="1" value="1"></div>
+        <div><label>Visitas/mes</label><input type="number" class="op-visitas" min="1" value="4"></div>
       </div>`;
-    container.appendChild(card);
+    c.appendChild(card);
   });
   showStep(3);
 }
 
-// PASO 4: Insumos
 function goStep4() {
-  const nombres = document.querySelectorAll('.ub-nombre');
-  const container = document.getElementById('insumosForms');
-  container.innerHTML = '';
-  nombres.forEach((n, i) => {
+  const c = document.getElementById('insumosForms');
+  c.innerHTML = '';
+  document.querySelectorAll('.ub-nombre').forEach((n, i) => {
     const card = document.createElement('div');
     card.className = 'ubicacion-card';
-    let html = `<h3>${n.value}</h3>`;
+    let h = `<h3>${n.value}</h3>`;
     for (const [key, ins] of Object.entries(precios.insumos)) {
-      const descTag = key === 'trampa_uv' ? '<span class="tag">Desc. por cant.</span>' : '';
-      html += `
-        <div class="insumo-row">
-          <label>${ins.nombre} ${descTag}</label>
-          <div class="insumo-precio">${fmt(ins.precio_unitario)}/${ins.unidad}</div>
-          <input type="number" class="ins-cant" data-key="${key}" data-ub="${i}" min="0" value="0" style="width:70px">
-          <select class="ins-tipo" data-key="${key}" data-ub="${i}" style="width:90px">
-            <option value="U">Unico</option>
-            <option value="M">Mensual</option>
-          </select>
-        </div>`;
+      const tag = key === 'trampa_uv' ? '<span class="tag">Desc. por cant.</span>' : '';
+      h += `<div class="insumo-row">
+        <label>${ins.nombre} ${tag}</label>
+        <div class="insumo-precio">${fmt(ins.precio_unitario)}/${ins.unidad}</div>
+        <input type="number" class="ins-cant" data-key="${key}" data-ub="${i}" min="0" value="0" style="width:70px">
+        <select class="ins-tipo" data-key="${key}" data-ub="${i}" style="width:90px"><option value="U">Unico</option><option value="M">Mensual</option></select>
+      </div>`;
     }
-    card.innerHTML = html;
-    container.appendChild(card);
+    card.innerHTML = h;
+    c.appendChild(card);
   });
   showStep(4);
 }
 
-// PASO 5 -> 6: Calcular
 function goStep5() { showStep(5); }
 
-function goStep6() {
-  calcular();
-  showStep(6);
-}
-
-function getUbicaciones() {
-  const ubNames = document.querySelectorAll('.ub-nombre');
-  const ubDirs = document.querySelectorAll('.ub-dir');
-  const ubM2 = document.querySelectorAll('.ub-m2');
-  const ubFreq = document.querySelectorAll('.ub-freq');
-  const ubDia = document.querySelectorAll('.ub-dia');
-  const ubHor = document.querySelectorAll('.ub-horario');
-  const opHoras = document.querySelectorAll('.op-horas');
-  const opOps = document.querySelectorAll('.op-operarios');
-  const opVis = document.querySelectorAll('.op-visitas');
-
-  const ubicaciones = [];
-  ubNames.forEach((_, i) => {
-    // Ajustes por dia/horario
-    let ajuste = 0;
-    let ajusteDesc = [];
-    const dia = ubDia[i].value;
-    const hor = ubHor[i].value;
-    if (hor.includes('Nocturno')) { ajuste += precios.ajustes.nocturno.porcentaje; ajusteDesc.push('Nocturno +' + precios.ajustes.nocturno.porcentaje + '%'); }
-    if (dia === 'Domingo') { ajuste += precios.ajustes.domingo.porcentaje; ajusteDesc.push('Domingo +' + precios.ajustes.domingo.porcentaje + '%'); }
-    if (dia === 'Sabado tarde') { ajuste += precios.ajustes.sabado_post_13.porcentaje; ajusteDesc.push('Sab post 13hs +' + precios.ajustes.sabado_post_13.porcentaje + '%'); }
-
-    const horas = parseFloat(opHoras[i].value) || 0;
-    const operarios = parseInt(opOps[i].value) || 0;
-    const visitas = parseInt(opVis[i].value) || 0;
-    const costoOp = horas * precios.mano_de_obra.valor_hora_operario * operarios * visitas * (1 + ajuste / 100);
-
-    // Insumos
-    const insumos = [];
-    document.querySelectorAll(`.ins-cant[data-ub="${i}"]`).forEach((inp, j) => {
-      const cant = parseInt(inp.value) || 0;
-      if (cant > 0) {
-        const key = inp.dataset.key;
-        const tipo = document.querySelectorAll(`.ins-tipo[data-ub="${i}"]`)[j].value;
-        insumos.push({ key, cant, tipo, nombre: precios.insumos[key].nombre, precio: precios.insumos[key].precio_unitario, unidad: precios.insumos[key].unidad });
-      }
-    });
-
-    ubicaciones.push({
-      nombre: ubNames[i].value,
-      direccion: ubDirs[i].value,
-      m2: ubM2[i].value,
-      frecuencia: ubFreq[i].value,
-      dia, horario: hor,
-      horas, operarios, visitas,
-      ajuste, ajusteDesc: ajusteDesc.length ? ajusteDesc.join(', ') : 'Ninguno',
-      costoOp,
-      insumos
-    });
-  });
-  return ubicaciones;
-}
-
-function getDescuentoTrampa(cantTotal) {
-  const tramos = precios.insumos.trampa_uv.descuentos_mayoristas;
-  for (const t of tramos) {
-    if (cantTotal >= t.desde && (t.hasta === null || cantTotal <= t.hasta)) return t.descuento;
-  }
+function getDescuentoTrampa(t) {
+  const tr = precios.insumos.trampa_uv.descuentos_mayoristas;
+  for (const x of tr) { if (t >= x.desde && (x.hasta === null || t <= x.hasta)) return x.descuento; }
   return 0;
 }
 
+function getUbicaciones() {
+  const ubN = document.querySelectorAll('.ub-nombre'), ubD = document.querySelectorAll('.ub-dir');
+  const ubM = document.querySelectorAll('.ub-m2'), ubF = document.querySelectorAll('.ub-freq');
+  const ubDi = document.querySelectorAll('.ub-dia'), ubH = document.querySelectorAll('.ub-horario');
+  const opH = document.querySelectorAll('.op-horas'), opO = document.querySelectorAll('.op-operarios'), opV = document.querySelectorAll('.op-visitas');
+  const ubs = [];
+  ubN.forEach((_, i) => {
+    let aj = 0, ajD = [];
+    const dia = ubDi[i].value, hor = ubH[i].value;
+    if (hor.includes('Nocturno')) { aj += precios.ajustes.nocturno.porcentaje; ajD.push('Nocturno +'+precios.ajustes.nocturno.porcentaje+'%'); }
+    if (dia === 'Domingo') { aj += precios.ajustes.domingo.porcentaje; ajD.push('Domingo +'+precios.ajustes.domingo.porcentaje+'%'); }
+    if (dia === 'Sabado tarde') { aj += precios.ajustes.sabado_post_13.porcentaje; ajD.push('Sab post 13hs +'+precios.ajustes.sabado_post_13.porcentaje+'%'); }
+    const horas = parseFloat(opH[i].value)||0, ops = parseInt(opO[i].value)||0, vis = parseInt(opV[i].value)||0;
+    const costoOp = horas * precios.mano_de_obra.valor_hora_operario * ops * vis * (1 + aj/100);
+    const insumos = [];
+    document.querySelectorAll(`.ins-cant[data-ub="${i}"]`).forEach((inp, j) => {
+      const cant = parseInt(inp.value)||0;
+      if (cant > 0) {
+        const key = inp.dataset.key;
+        const tipo = document.querySelectorAll(`.ins-tipo[data-ub="${i}"]`)[j].value;
+        insumos.push({key, cant, tipo, nombre: precios.insumos[key].nombre, precio: precios.insumos[key].precio_unitario, unidad: precios.insumos[key].unidad});
+      }
+    });
+    ubs.push({nombre:ubN[i].value, direccion:ubD[i].value, m2:ubM[i].value, frecuencia:ubF[i].value, dia, horario:hor, horas, operarios:ops, visitas:vis, ajuste:aj, ajusteDesc:ajD.length?ajD.join(', '):'Ninguno', costoOp, insumos});
+  });
+  return ubs;
+}
+
+function goStep6() { calcular(); showStep(6); }
+
 function calcular() {
   const ubicaciones = getUbicaciones();
-
-  // Calcular total trampas UV para descuento
   let totalTrampas = 0;
-  ubicaciones.forEach(u => u.insumos.forEach(ins => { if (ins.key === 'trampa_uv') totalTrampas += ins.cant; }));
+  ubicaciones.forEach(u => u.insumos.forEach(ins => { if (ins.key==='trampa_uv') totalTrampas+=ins.cant; }));
   const descTrampa = getDescuentoTrampa(totalTrampas);
+  let html = '', subtotalMensual = 0, totalInsIniciales = 0;
 
-  let html = '';
-  let subtotalMensual = 0;
-  let totalInsIniciales = 0;
+  if (descTrampa > 0) html += `<div class="aviso">Descuento Trampas UV: ${descTrampa}% (${totalTrampas} unidades totales)</div>`;
 
   ubicaciones.forEach(u => {
-    let insUnicosHtml = '';
-    let insMensualesHtml = '';
-    let totalU = 0, totalM = 0;
-
+    let insUH = '', insMH = '', tU = 0, tM = 0;
     u.insumos.forEach(ins => {
-      let precio = ins.precio;
-      let descText = '';
-      if (ins.key === 'trampa_uv' && descTrampa > 0) {
-        precio = ins.precio * (1 - descTrampa / 100);
-        descText = ` (-${descTrampa}%)`;
-      }
-      const sub = ins.cant * precio;
-      const row = `<tr><td>${ins.cant}</td><td>${ins.nombre}${descText}</td><td>${fmt(precio)}</td><td>${fmt(sub)}</td></tr>`;
-      if (ins.tipo === 'U') { insUnicosHtml += row; totalU += sub; }
-      else { insMensualesHtml += row; totalM += sub; }
+      let p = ins.precio, dt = '';
+      if (ins.key==='trampa_uv'&&descTrampa>0) { p=ins.precio*(1-descTrampa/100); dt=` (-${descTrampa}%)`; }
+      const s = ins.cant*p;
+      const row = `<tr><td>${ins.cant}</td><td>${ins.nombre}${dt}</td><td>${fmt(p)}</td><td>${fmt(s)}</td></tr>`;
+      if (ins.tipo==='U') { insUH+=row; tU+=s; } else { insMH+=row; tM+=s; }
     });
-
-    const servMensual = u.costoOp + totalM;
-    subtotalMensual += servMensual;
-    totalInsIniciales += totalU;
-
-    html += `<div class="ubicacion-card">
-      <h3>${u.nombre} <span class="tag">${u.frecuencia}</span>${u.ajuste > 0 ? '<span class="tag" style="background:#fff3cd;color:#856404">Ajuste: ' + u.ajusteDesc + '</span>' : ''}</h3>
+    const serv = u.costoOp+tM;
+    subtotalMensual += serv;
+    totalInsIniciales += tU;
+    html += `<div class="ubicacion-card"><h3>${u.nombre} <span class="tag">${u.frecuencia}</span>${u.ajuste>0?'<span class="tag" style="background:#fff3cd;color:#856404">'+u.ajusteDesc+'</span>':''}</h3>
       <p style="font-size:0.85em;color:#666;margin-bottom:10px">${u.direccion} | ${u.m2} m2 | ${u.dia} | ${u.horario}</p>
-      <table class="resumen-table">
-        <tr><th colspan="4">Detalle operativo</th></tr>
-        <tr><td>${u.horas}hs</td><td>${u.operarios} operario(s)</td><td>${u.visitas} visitas/mes</td><td><strong>${fmt(u.costoOp)}</strong></td></tr>
-      </table>`;
-
-    if (insUnicosHtml) {
-      html += `<table class="resumen-table">
-        <tr><th>Cant</th><th>Insumo (Unico)</th><th>P.Unit</th><th>Subtotal</th></tr>
-        ${insUnicosHtml}
-        <tr class="subtotal-row"><td colspan="3">Total insumos unicos</td><td>${fmt(totalU)}</td></tr>
-      </table>`;
-    }
-    if (insMensualesHtml) {
-      html += `<table class="resumen-table">
-        <tr><th>Cant</th><th>Insumo (Mensual)</th><th>P.Unit</th><th>Subtotal</th></tr>
-        ${insMensualesHtml}
-        <tr class="subtotal-row"><td colspan="3">Total insumos mensuales</td><td>${fmt(totalM)}</td></tr>
-      </table>`;
-    }
-
-    html += `<table class="resumen-table">
-      <tr class="total-row"><td colspan="3">Servicio mensual (operativo + insumos)</td><td>${fmt(servMensual)}</td></tr>
-      <tr><td colspan="3">Insumos instalacion inicial</td><td>${fmt(totalU)}</td></tr>
-    </table></div>`;
+      <table class="resumen-table"><tr><th colspan="4">Detalle operativo</th></tr>
+      <tr><td>${u.horas}hs</td><td>${u.operarios} operario(s)</td><td>${u.visitas} visitas/mes</td><td><strong>${fmt(u.costoOp)}</strong></td></tr></table>`;
+    if (insUH) html += `<table class="resumen-table"><tr><th>Cant</th><th>Insumo (Unico)</th><th>P.Unit</th><th>Subtotal</th></tr>${insUH}<tr class="subtotal-row"><td colspan="3">Total insumos unicos</td><td>${fmt(tU)}</td></tr></table>`;
+    if (insMH) html += `<table class="resumen-table"><tr><th>Cant</th><th>Insumo (Mensual)</th><th>P.Unit</th><th>Subtotal</th></tr>${insMH}<tr class="subtotal-row"><td colspan="3">Total insumos mensuales</td><td>${fmt(tM)}</td></tr></table>`;
+    html += `<table class="resumen-table"><tr class="total-row"><td colspan="3">Servicio mensual</td><td>${fmt(serv)}</td></tr><tr><td colspan="3">Insumos instalacion</td><td>${fmt(tU)}</td></tr></table></div>`;
   });
 
-  // Horas admin
-  const horasAdmin = parseFloat(document.getElementById('horasAdmin').value) || 0;
-  const costoAdmin = horasAdmin * precios.mano_de_obra.valor_hora_administrativa;
-
-  // Condiciones particulares
-  const condTipo = document.getElementById('condTipo').value;
-  const condValor = parseFloat(document.getElementById('condValor').value) || 0;
-  const condDesc = document.getElementById('condDesc').value || '';
-  let ajusteParticular = 0;
-  if (condTipo === 'porcentaje') ajusteParticular = (subtotalMensual + costoAdmin) * condValor / 100;
-  else if (condTipo === 'monto_fijo') ajusteParticular = condValor;
-
-  const valorMensualTotal = subtotalMensual + costoAdmin + ajusteParticular;
-  const valorInicialTotal = valorMensualTotal + totalInsIniciales;
+  const hAdmin = parseFloat(document.getElementById('horasAdmin').value)||0;
+  const cAdmin = hAdmin * precios.mano_de_obra.valor_hora_administrativa;
+  const cTipo = document.getElementById('condTipo').value;
+  const cVal = parseFloat(document.getElementById('condValor').value)||0;
+  const cDesc = document.getElementById('condDesc').value||'';
+  let ajPart = 0;
+  if (cTipo==='porcentaje') ajPart = (subtotalMensual+cAdmin)*cVal/100;
+  else if (cTipo==='monto_fijo') ajPart = cVal;
+  const valMensual = subtotalMensual+cAdmin+ajPart;
+  const valInicial = valMensual+totalInsIniciales;
 
   html += `<div class="resumen-final">
     <div class="line"><span>Subtotal mensual (ubicaciones)</span><span>${fmt(subtotalMensual)}</span></div>`;
-  if (horasAdmin > 0) html += `<div class="line"><span>Horas administrativas (${horasAdmin}hs x ${fmt(precios.mano_de_obra.valor_hora_administrativa)})</span><span>${fmt(costoAdmin)}</span></div>`;
-  if (ajusteParticular > 0) html += `<div class="line"><span>Condiciones particulares${condDesc ? ' (' + condDesc + ')' : ''} ${condTipo === 'porcentaje' ? condValor + '%' : ''}</span><span>${fmt(ajusteParticular)}</span></div>`;
-  if (totalInsIniciales > 0) html += `<div class="line"><span>Insumos instalacion inicial</span><span>${fmt(totalInsIniciales)}</span></div>`;
-  html += `<div class="line big"><span>VALOR MES INICIAL</span><span>${fmt(valorInicialTotal)}</span></div>
-    <div class="line big"><span>VALOR MENSUAL RECURRENTE</span><span>${fmt(valorMensualTotal)}</span></div>
-  </div>`;
-
-  if (descTrampa > 0) {
-    html = `<div class="aviso">Descuento mayorista Trampas UV: ${descTrampa}% (${totalTrampas} unidades totales)</div>` + html;
-  }
+  if (hAdmin>0) html += `<div class="line"><span>Horas administrativas (${hAdmin}hs x ${fmt(precios.mano_de_obra.valor_hora_administrativa)})</span><span>${fmt(cAdmin)}</span></div>`;
+  if (ajPart>0) html += `<div class="line"><span>Condiciones particulares${cDesc?' ('+cDesc+')':''}${cTipo==='porcentaje'?' '+cVal+'%':''}</span><span>${fmt(ajPart)}</span></div>`;
+  if (totalInsIniciales>0) html += `<div class="line"><span>Insumos instalacion inicial</span><span>${fmt(totalInsIniciales)}</span></div>`;
+  html += `<div class="line big"><span>VALOR MES INICIAL</span><span>${fmt(valInicial)}</span></div>
+    <div class="line big"><span>VALOR MENSUAL RECURRENTE</span><span>${fmt(valMensual)}</span></div></div>`;
 
   document.getElementById('resumenCostos').innerHTML = html;
-
-  // Store for TXT
-  window._cotData = { ubicaciones, subtotalMensual, costoAdmin, horasAdmin, ajusteParticular, condTipo, condValor, condDesc, valorMensualTotal, totalInsIniciales, valorInicialTotal, descTrampa, totalTrampas };
+  window._cotData = {ubicaciones, subtotalMensual, costoAdmin:cAdmin, horasAdmin:hAdmin, ajusteParticular:ajPart, condTipo:cTipo, condValor:cVal, condDesc:cDesc, valorMensualTotal:valMensual, totalInsIniciales, valorInicialTotal:valInicial, descTrampa, totalTrampas};
 }
 
 function goStep7() { showStep(7); }
 
 function generarCotizacion() {
   const d = window._cotData;
-  const rs = document.getElementById('razonSocial').value || 'SIN RAZON SOCIAL';
-  const cuit = document.getElementById('cuit').value || 'XX-XXXXXXXX-X';
-  const tel = document.getElementById('telefono').value || '-';
-  const contacto = document.getElementById('contactoNombre').value || '-';
-  const cargo = document.getElementById('contactoCargo').value || '-';
+  const rs = document.getElementById('razonSocial').value||'SIN RAZON SOCIAL';
+  const cuit = document.getElementById('cuit').value||'XX-XXXXXXXX-X';
+  const tel = document.getElementById('telefono').value||'-';
+  const contacto = document.getElementById('contactoNombre').value||'-';
+  const cargo = document.getElementById('contactoCargo').value||'-';
   const now = new Date();
-  const fecha = now.toLocaleDateString('es-AR', {day:'2-digit',month:'2-digit',year:'numeric'});
-  const hora = now.toLocaleTimeString('es-AR', {hour:'2-digit',minute:'2-digit'});
-  const num = '0001'; // correlativo simple
+  const fecha = now.toLocaleDateString('es-AR',{day:'2-digit',month:'2-digit',year:'numeric'});
+  const hora = now.toLocaleTimeString('es-AR',{hour:'2-digit',minute:'2-digit'});
+  const num = '0001';
 
-  let txt = `================================================================
-          COTIZACION DE SERVICIO DE CONTROL DE PLAGAS
-================================================================
-Cotizacion N.: COT-${num}        Fecha: ${fecha}
-----------------------------------------------------------------
-DATOS DEL CLIENTE
-Razon Social: ${rs}
-CUIT: ${cuit}
-Contacto: ${contacto} - ${cargo}
-Telefono: ${tel}
-================================================================\n`;
-
+  let ubsHtml = '';
   d.ubicaciones.forEach(u => {
-    txt += `\nUBICACION: ${u.nombre}
-Direccion: ${u.direccion}
-Superficie: ${u.m2} m2
-Frecuencia: ${u.frecuencia} | Dia: ${u.dia} | Horario: ${u.horario}
-----------------------------------------------------------------
-  DETALLE OPERATIVO
-  Horas por visita: ${u.horas}
-  Operarios por visita: ${u.operarios}
-  Visitas mensuales: ${u.visitas}
-  Ajuste aplicado: ${u.ajusteDesc}
-  TOTAL OPERATIVO MENSUAL:              ${fmt(u.costoOp)}\n`;
-
-    const unicos = u.insumos.filter(i => i.tipo === 'U');
-    const mensuales = u.insumos.filter(i => i.tipo === 'M');
-
-    if (unicos.length) {
-      txt += `\n  INSUMOS UNICOS (instalacion inicial)
-  Cant  Descripcion              P.Unit      Subtotal
-  ---   -----------              ------      --------\n`;
-      let tU = 0;
-      unicos.forEach(ins => {
+    const unicos = u.insumos.filter(i=>i.tipo==='U');
+    const mensuales = u.insumos.filter(i=>i.tipo==='M');
+    const calcIns = (arr) => {
+      let t = 0, rows = '';
+      arr.forEach(ins => {
         let p = ins.precio;
-        if (ins.key === 'trampa_uv' && d.descTrampa > 0) p = ins.precio * (1 - d.descTrampa / 100);
-        const s = ins.cant * p;
-        tU += s;
-        txt += `  ${String(ins.cant).padEnd(6)}${ins.nombre.padEnd(25)}${fmt(p).padStart(10)}  ${fmt(s).padStart(10)}\n`;
+        if (ins.key==='trampa_uv'&&d.descTrampa>0) p = ins.precio*(1-d.descTrampa/100);
+        const s = ins.cant*p;
+        t += s;
+        rows += `<tr><td>${ins.cant}</td><td>${ins.nombre}${ins.key==='trampa_uv'&&d.descTrampa>0?' <small>(-'+d.descTrampa+'%)</small>':''}</td><td class="r">${fmt(p)}</td><td class="r">${fmt(s)}</td></tr>`;
       });
-      txt += `  TOTAL INSUMOS UNICOS:                 ${fmt(tU)}\n`;
-    }
+      return {rows, total: t};
+    };
+    const uData = calcIns(unicos), mData = calcIns(mensuales);
+    const servM = u.costoOp + mData.total;
 
-    if (mensuales.length) {
-      txt += `\n  INSUMOS MENSUALES (recurrentes)
-  Cant  Descripcion              P.Unit      Subtotal
-  ---   -----------              ------      --------\n`;
-      let tM = 0;
-      mensuales.forEach(ins => {
-        let p = ins.precio;
-        if (ins.key === 'trampa_uv' && d.descTrampa > 0) p = ins.precio * (1 - d.descTrampa / 100);
-        const s = ins.cant * p;
-        tM += s;
-        txt += `  ${String(ins.cant).padEnd(6)}${ins.nombre.padEnd(25)}${fmt(p).padStart(10)}  ${fmt(s).padStart(10)}\n`;
-      });
-      txt += `  TOTAL INSUMOS MENSUALES:              ${fmt(tM)}\n`;
-    }
+    ubsHtml += `<div class="ub-section">
+      <h3>${u.nombre}</h3>
+      <p class="ub-meta">${u.direccion} | ${u.m2} m2 | ${u.frecuencia} | ${u.dia} | ${u.horario}</p>
+      <table><thead><tr><th colspan="4">Detalle operativo</th></tr></thead>
+      <tbody><tr><td>Horas: ${u.horas}</td><td>Operarios: ${u.operarios}</td><td>Visitas/mes: ${u.visitas}</td><td class="r"><strong>${fmt(u.costoOp)}</strong></td></tr>
+      ${u.ajuste>0?'<tr><td colspan="4" class="ajuste">Ajuste: '+u.ajusteDesc+'</td></tr>':''}</tbody></table>`;
 
-    const tU = unicos.reduce((s, ins) => { let p = ins.precio; if (ins.key === 'trampa_uv' && d.descTrampa > 0) p = ins.precio * (1 - d.descTrampa / 100); return s + ins.cant * p; }, 0);
-    const tM = mensuales.reduce((s, ins) => { let p = ins.precio; if (ins.key === 'trampa_uv' && d.descTrampa > 0) p = ins.precio * (1 - d.descTrampa / 100); return s + ins.cant * p; }, 0);
+    if (uData.rows) ubsHtml += `<table><thead><tr><th>Cant</th><th>Insumo unico</th><th class="r">P.Unit</th><th class="r">Subtotal</th></tr></thead><tbody>${uData.rows}<tr class="total"><td colspan="3">Total insumos unicos</td><td class="r">${fmt(uData.total)}</td></tr></tbody></table>`;
+    if (mData.rows) ubsHtml += `<table><thead><tr><th>Cant</th><th>Insumo mensual</th><th class="r">P.Unit</th><th class="r">Subtotal</th></tr></thead><tbody>${mData.rows}<tr class="total"><td colspan="3">Total insumos mensuales</td><td class="r">${fmt(mData.total)}</td></tr></tbody></table>`;
 
-    txt += `\n  ............................................................
-  RESUMEN UBICACION ${u.nombre}:
-    Servicio mensual (operativo + insumos):   ${fmt(u.costoOp + tM)}
-    Insumos de instalacion inicial:           ${fmt(tU)}
-  ............................................................\n
-================================================================\n`;
+    ubsHtml += `<div class="ub-resumen"><div class="ub-line"><span>Servicio mensual (operativo + insumos)</span><span>${fmt(servM)}</span></div>
+      ${uData.total>0?'<div class="ub-line"><span>Insumos instalacion inicial</span><span>'+fmt(uData.total)+'</span></div>':''}</div></div>`;
   });
 
-  txt += `\n================================================================
-RESUMEN GENERAL
-================================================================
-  Subtotal mensual (todas las ubicaciones):  ${fmt(d.subtotalMensual)}\n`;
-  if (d.horasAdmin > 0) txt += `  Horas administrativas (${d.horasAdmin}hs x ${fmt(precios.mano_de_obra.valor_hora_administrativa)}):  ${fmt(d.costoAdmin)}\n`;
-  if (d.ajusteParticular > 0) txt += `  Condiciones particulares (${d.condDesc}):       ${fmt(d.ajusteParticular)}\n`;
-  txt += `  --------------------------------------------------------
-  VALOR MENSUAL TOTAL:                ${fmt(d.valorMensualTotal)}
-  Insumos de instalacion (todas):     ${fmt(d.totalInsIniciales)}
-  --------------------------------------------------------
-  VALOR MES INICIAL TOTAL:            ${fmt(d.valorInicialTotal)}
-  VALOR MENSUAL RECURRENTE:           ${fmt(d.valorMensualTotal)}
-================================================================
-Cotizacion generada el ${fecha} a las ${hora}hs
-================================================================`;
+  const cotHtml = `<!DOCTYPE html><html lang="es"><head><meta charset="UTF-8"><title>COT-${num} - ${rs}</title>
+<style>
+  @page { size: A4; margin: 15mm; }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Segoe UI', Arial, sans-serif; color: #222; font-size: 13px; line-height: 1.5; }
+  .doc { max-width: 750px; margin: 0 auto; padding: 20px; }
+  .doc-header { text-align: center; border-bottom: 3px solid #1a1a2e; padding-bottom: 15px; margin-bottom: 20px; }
+  .doc-header h1 { font-size: 1.4em; color: #1a1a2e; letter-spacing: 1px; }
+  .doc-header .meta { display: flex; justify-content: space-between; margin-top: 8px; font-size: 0.95em; color: #555; }
+  .cliente { background: #f5f7fa; border-radius: 8px; padding: 15px; margin-bottom: 20px; }
+  .cliente h2 { font-size: 1em; color: #1a1a2e; margin-bottom: 8px; }
+  .cliente-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 4px 20px; }
+  .cliente-grid span { font-size: 0.9em; } .cliente-grid strong { font-size: 0.9em; }
+  .ub-section { border: 1px solid #ddd; border-radius: 8px; padding: 15px; margin-bottom: 15px; }
+  .ub-section h3 { font-size: 1.05em; color: #1a1a2e; margin-bottom: 5px; }
+  .ub-meta { font-size: 0.85em; color: #666; margin-bottom: 10px; }
+  table { width: 100%; border-collapse: collapse; margin: 8px 0; font-size: 0.9em; }
+  th { background: #eef1f5; padding: 6px 10px; text-align: left; font-weight: 600; border-bottom: 2px solid #ccc; }
+  td { padding: 5px 10px; border-bottom: 1px solid #eee; }
+  .r { text-align: right; }
+  tr.total td { font-weight: 700; border-top: 2px solid #1a1a2e; background: #f9f9f9; }
+  .ajuste { font-size: 0.85em; color: #c67000; font-style: italic; }
+  .ub-resumen { background: #f0f4f8; border-radius: 6px; padding: 10px 15px; margin-top: 10px; }
+  .ub-line { display: flex; justify-content: space-between; padding: 3px 0; font-size: 0.95em; }
+  .resumen-general { background: #1a1a2e; color: #fff; border-radius: 10px; padding: 20px; margin-top: 20px; }
+  .resumen-general h2 { font-size: 1.1em; margin-bottom: 12px; text-align: center; letter-spacing: 1px; }
+  .rg-line { display: flex; justify-content: space-between; padding: 5px 0; font-size: 0.95em; }
+  .rg-line.big { font-size: 1.2em; font-weight: 700; border-top: 1px solid rgba(255,255,255,0.3); padding-top: 12px; margin-top: 8px; }
+  .footer { text-align: center; margin-top: 25px; font-size: 0.8em; color: #999; border-top: 1px solid #ddd; padding-top: 10px; }
+  @media print { body { font-size: 12px; } .doc { padding: 0; } .ub-section { break-inside: avoid; } }
+</style></head><body><div class="doc">
+  <div class="doc-header">
+    <h1>COTIZACION DE SERVICIO DE CONTROL DE PLAGAS</h1>
+    <div class="meta"><span>Cotizacion N.: <strong>COT-${num}</strong></span><span>Fecha: <strong>${fecha}</strong></span></div>
+  </div>
+  <div class="cliente"><h2>Datos del cliente</h2>
+    <div class="cliente-grid">
+      <span>Razon Social:</span><strong>${rs}</strong>
+      <span>CUIT:</span><strong>${cuit}</strong>
+      <span>Contacto:</span><strong>${contacto} - ${cargo}</strong>
+      <span>Telefono:</span><strong>${tel}</strong>
+    </div>
+  </div>
+  ${ubsHtml}
+  <div class="resumen-general"><h2>RESUMEN GENERAL</h2>
+    <div class="rg-line"><span>Subtotal mensual (todas las ubicaciones)</span><span>${fmt(d.subtotalMensual)}</span></div>
+    ${d.horasAdmin>0?'<div class="rg-line"><span>Horas administrativas ('+d.horasAdmin+'hs x '+fmt(precios.mano_de_obra.valor_hora_administrativa)+')</span><span>'+fmt(d.costoAdmin)+'</span></div>':''}
+    ${d.ajusteParticular>0?'<div class="rg-line"><span>Condiciones particulares'+(d.condDesc?' ('+d.condDesc+')':'')+(d.condTipo==='porcentaje'?' '+d.condValor+'%':'')+'</span><span>'+fmt(d.ajusteParticular)+'</span></div>':''}
+    ${d.totalInsIniciales>0?'<div class="rg-line"><span>Insumos de instalacion</span><span>'+fmt(d.totalInsIniciales)+'</span></div>':''}
+    <div class="rg-line big"><span>VALOR MES INICIAL</span><span>${fmt(d.valorInicialTotal)}</span></div>
+    <div class="rg-line big"><span>VALOR MENSUAL RECURRENTE</span><span>${fmt(d.valorMensualTotal)}</span></div>
+  </div>
+  <div class="footer">Cotizacion generada el ${fecha} a las ${hora}hs</div>
+</div></body></html>`;
 
-  document.getElementById('cotizacionTxt').textContent = txt;
-  window._cotTxt = txt;
-  window._cotFileName = `COT-${num}_${rs.replace(/\s+/g, '-').replace(/[^a-zA-Z0-9-]/g, '')}_${now.getFullYear()}${String(now.getMonth()+1).padStart(2,'0')}${String(now.getDate()).padStart(2,'0')}.txt`;
+  window._cotHtmlContent = cotHtml;
+  abrirCotizacion();
   showStep(8);
 }
 
-function descargarTxt() {
-  const blob = new Blob([window._cotTxt], {type: 'text/plain'});
-  const a = document.createElement('a');
-  a.href = URL.createObjectURL(blob);
-  a.download = window._cotFileName;
-  a.click();
-}
-
-function nuevaCotizacion() {
-  location.reload();
+function abrirCotizacion() {
+  cotizacionWindow = window.open('', '_blank');
+  cotizacionWindow.document.write(window._cotHtmlContent);
+  cotizacionWindow.document.close();
 }
 </script>
 </body>

@@ -2,7 +2,7 @@
   "metadata": {
     "ultima_actualizacion": "2026-02-11",
     "moneda": "ARS",
-    "notas": "Precios vigentes al 11/02/2026. Revisar periódicamente."
+    "notas": "Precios vigentes al 11/02/2026. Revisar periódicamente. Descuentos mayoristas solo aplican a Trampas UV."
   },
   "ajustes": {
     "nocturno": {
@@ -19,40 +19,26 @@
     }
   },
   "mano_de_obra": {
-    "valor_hora": 50000,
-    "descripcion": "Valor hora por operario"
+    "valor_hora_operario": 50000,
+    "descripcion_operario": "Valor hora por operario",
+    "valor_hora_administrativa": 50000,
+    "descripcion_administrativa": "Valor hora administrativa"
   },
   "insumos": {
     "caja_cebadera": {
       "nombre": "Caja cebadera",
       "precio_unitario": 5500,
-      "unidad": "unidad",
-      "descuentos_mayoristas": [
-        { "desde": 1, "hasta": 49, "descuento": 0 },
-        { "desde": 50, "hasta": 99, "descuento": 5 },
-        { "desde": 100, "hasta": 199, "descuento": 10 },
-        { "desde": 200, "hasta": null, "descuento": 15 }
-      ]
+      "unidad": "unidad"
     },
     "placa_uv": {
       "nombre": "Placa UV",
-      "precio_unitario": 8000,
-      "unidad": "unidad",
-      "descuentos_mayoristas": [
-        { "desde": 1, "hasta": 19, "descuento": 0 },
-        { "desde": 20, "hasta": 49, "descuento": 5 },
-        { "desde": 50, "hasta": null, "descuento": 10 }
-      ]
+      "precio_unitario": 1550,
+      "unidad": "unidad"
     },
     "placa_roe": {
       "nombre": "Placa ROE",
-      "precio_unitario": 6500,
-      "unidad": "unidad",
-      "descuentos_mayoristas": [
-        { "desde": 1, "hasta": 19, "descuento": 0 },
-        { "desde": 20, "hasta": 49, "descuento": 5 },
-        { "desde": 50, "hasta": null, "descuento": 10 }
-      ]
+      "precio_unitario": 2500,
+      "unidad": "unidad"
     },
     "trampa_uv": {
       "nombre": "Trampa UV",
@@ -67,41 +53,23 @@
     },
     "und_33_3": {
       "nombre": "UND 33.3",
-      "precio_unitario": 3200,
-      "unidad": "unidad",
-      "descuentos_mayoristas": [
-        { "desde": 1, "hasta": 49, "descuento": 0 },
-        { "desde": 50, "hasta": 99, "descuento": 5 },
-        { "desde": 100, "hasta": null, "descuento": 10 }
-      ]
+      "precio_unitario": 2600,
+      "unidad": "unidad"
     },
     "etiqueta_cb": {
       "nombre": "Etiqueta CB",
-      "precio_unitario": 500,
-      "unidad": "unidad",
-      "descuentos_mayoristas": [
-        { "desde": 1, "hasta": 99, "descuento": 0 },
-        { "desde": 100, "hasta": null, "descuento": 10 }
-      ]
+      "precio_unitario": 400,
+      "unidad": "unidad"
     },
     "etiqueta_pared": {
       "nombre": "Etiqueta Pared",
-      "precio_unitario": 600,
-      "unidad": "unidad",
-      "descuentos_mayoristas": [
-        { "desde": 1, "hasta": 99, "descuento": 0 },
-        { "desde": 100, "hasta": null, "descuento": 10 }
-      ]
+      "precio_unitario": 275,
+      "unidad": "unidad"
     },
     "metro_lineal_pincho": {
       "nombre": "Metro lineal de Pincho",
-      "precio_unitario": 12000,
-      "unidad": "metro",
-      "descuentos_mayoristas": [
-        { "desde": 1, "hasta": 19, "descuento": 0 },
-        { "desde": 20, "hasta": 49, "descuento": 5 },
-        { "desde": 50, "hasta": null, "descuento": 10 }
-      ]
+      "precio_unitario": 7800,
+      "unidad": "metro"
     }
   }
 }
