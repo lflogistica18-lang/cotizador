@@ -7,7 +7,24 @@
 <style>
   * { box-sizing: border-box; margin: 0; padding: 0; }
   body { font-family: 'Segoe UI', sans-serif; background: #f0f2f5; color: #1a1a2e; }
-  .header { background: linear-gradient(135deg, #1a1a2e, #16213e); color: #fff; padding: 20px 30px; display: flex; justify-content: space-between; align-items: center; }
+
+  /* Sidebar */
+  .app-wrapper { display: flex; min-height: 100vh; }
+  .sidebar { width: 240px; background: #0a6e6f; color: #fff; position: fixed; top: 0; left: 0; height: 100vh; z-index: 100; display: flex; flex-direction: column; transition: transform 0.3s; }
+  .sidebar-header { padding: 20px; border-bottom: 1px solid rgba(255,255,255,0.15); text-align: center; }
+  .sidebar-header .logo-placeholder { width: 50px; height: 50px; background: rgba(255,255,255,0.2); border-radius: 50%; margin: 0 auto 10px; display: flex; align-items: center; justify-content: center; }
+  .sidebar-header .logo-placeholder svg { opacity: 0.9; }
+  .sidebar-header .user-name { font-size: 0.85em; opacity: 0.8; }
+  .sidebar-nav { flex: 1; padding: 15px 0; }
+  .sidebar-nav a { display: flex; align-items: center; padding: 12px 20px; color: rgba(255,255,255,0.7); text-decoration: none; font-size: 0.9em; transition: all 0.2s; gap: 10px; }
+  .sidebar-nav a:hover { background: rgba(255,255,255,0.1); color: #fff; }
+  .sidebar-nav a.active { background: rgba(255,255,255,0.15); color: #fff; font-weight: 600; border-left: 3px solid #fff; }
+  .sidebar-nav .nav-icon { width: 20px; height: 20px; background: rgba(255,255,255,0.25); border-radius: 4px; flex-shrink: 0; }
+  .main-content { margin-left: 240px; flex: 1; min-height: 100vh; }
+  .hamburger { display: none; position: fixed; top: 15px; left: 15px; z-index: 200; background: #0a6e6f; color: #fff; border: none; border-radius: 6px; padding: 8px 12px; font-size: 1.3em; cursor: pointer; line-height: 1; }
+  .sidebar-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 90; }
+
+  .header { background: #0a6e6f; color: #fff; padding: 20px 30px; display: flex; justify-content: space-between; align-items: center; }
   .header h1 { font-size: 1.4em; }
   .header .precios-info { font-size: 0.85em; opacity: 0.8; }
   .container { max-width: 900px; margin: 20px auto; padding: 0 15px; }
@@ -30,6 +47,8 @@
   .btn-secondary:hover { background: #d0d0d0; }
   .btn-success { background: #4caf50; color: #fff; }
   .btn-success:hover { background: #43a047; }
+  .btn-danger { background: #e74c3c; color: #fff; }
+  .btn-danger:hover { background: #c0392b; }
   .btn-group { display: flex; gap: 10px; margin-top: 20px; justify-content: flex-end; }
   .ubicacion-card { background: #f8f9fa; border: 1px solid #e0e0e0; border-radius: 10px; padding: 18px; margin-bottom: 12px; }
   .ubicacion-card h3 { font-size: 1em; color: #0f3460; margin-bottom: 12px; }
@@ -46,136 +65,176 @@
   .resumen-final { background: #16213e; color: #fff; border-radius: 10px; padding: 20px; margin-top: 15px; }
   .resumen-final .line { display: flex; justify-content: space-between; padding: 6px 0; font-size: 0.95em; }
   .resumen-final .line.big { font-size: 1.15em; font-weight: 700; border-top: 1px solid rgba(255,255,255,0.2); padding-top: 12px; margin-top: 6px; }
+  .resumen-final .line.iva { font-size: 0.9em; opacity: 0.85; }
   .aviso { background: #fff3cd; border: 1px solid #ffc107; border-radius: 8px; padding: 12px; margin-bottom: 15px; font-size: 0.9em; }
   .tag { display: inline-block; background: #e3f2fd; color: #0f3460; padding: 3px 10px; border-radius: 12px; font-size: 0.8em; font-weight: 600; margin-left: 8px; }
   .hidden { display: none; }
-  @media (max-width: 600px) { .row { flex-direction: column; gap: 0; } .insumo-row { flex-wrap: wrap; } }
+  .insumo-header { display: flex; gap: 8px; align-items: center; font-weight: 600; font-size: 0.8em; color: #666; border-bottom: 1px solid #e8e8e8; padding-bottom: 6px; margin-bottom: 8px; }
+  .insumo-header > span:first-child { flex: 2; }
+  .insumo-header > span { flex: 1; text-align: center; }
+
+  @media (max-width: 768px) {
+    .sidebar { transform: translateX(-100%); }
+    .sidebar.open { transform: translateX(0); }
+    .sidebar-overlay.open { display: block; }
+    .main-content { margin-left: 0; }
+    .hamburger { display: block; }
+    .header { padding-left: 55px; }
+  }
+  @media (max-width: 600px) { .row { flex-direction: column; gap: 0; } .insumo-row { flex-wrap: wrap; } .insumo-header { display: none; } }
 </style>
 </head>
 <body>
-<div class="header">
-  <div>
-    <h1>Cotizador de Control de Plagas</h1>
-    <div class="precios-info" id="preciosInfo"></div>
+<button class="hamburger" onclick="toggleSidebar()">&#9776;</button>
+<div class="sidebar-overlay" onclick="toggleSidebar()"></div>
+<div class="app-wrapper">
+  <div class="sidebar">
+    <div class="sidebar-header">
+      <div class="logo-placeholder">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+      </div>
+      <div class="user-name">Usuario</div>
+    </div>
+    <nav class="sidebar-nav">
+      <a href="#"><span class="nav-icon"></span> Asistente de Ventas</a>
+      <a href="#" class="active"><span class="nav-icon"></span> Cotizador</a>
+      <a href="#"><span class="nav-icon"></span> Generador de Propuestas</a>
+      <a href="#"><span class="nav-icon"></span> Certificados de Productos</a>
+    </nav>
   </div>
-</div>
-<div class="container">
-  <div class="step-indicator" id="stepIndicator"></div>
-
-  <!-- PASO 1: Tipo de cliente -->
-  <div class="step active" id="step1">
-    <h2>Paso 1 - Tipo de cliente</h2>
-    <label>Cantidad de ubicaciones del cliente</label>
-    <div class="row" style="margin-top:10px">
+  <div class="main-content">
+    <div class="header">
       <div>
-        <select id="tipoCliente">
-          <option value="unica">Ubicacion unica</option>
-          <option value="multiple">Multiples sucursales</option>
-        </select>
-      </div>
-      <div id="cantUbicacionesWrap" class="hidden">
-        <input type="number" id="cantUbicaciones" min="2" max="20" value="2" placeholder="Cant. ubicaciones">
+        <h1>Cotizador de Control de Plagas</h1>
+        <div class="precios-info" id="preciosInfo"></div>
       </div>
     </div>
-    <div class="btn-group"><button class="btn btn-primary" onclick="goStep2()">Siguiente</button></div>
-  </div>
+    <div class="container">
+      <div class="step-indicator" id="stepIndicator"></div>
 
-  <!-- PASO 2: Ubicaciones -->
-  <div class="step" id="step2">
-    <h2>Paso 2 - Datos de ubicaciones</h2>
-    <div id="ubicacionesForms"></div>
-    <div class="btn-group">
-      <button class="btn btn-secondary" onclick="showStep(1)">Atras</button>
-      <button class="btn btn-primary" onclick="goStep3()">Siguiente</button>
-    </div>
-  </div>
-
-  <!-- PASO 3: Detalle operativo -->
-  <div class="step" id="step3">
-    <h2>Paso 3 - Detalle operativo</h2>
-    <div id="operativoForms"></div>
-    <div class="btn-group">
-      <button class="btn btn-secondary" onclick="showStep(2)">Atras</button>
-      <button class="btn btn-primary" onclick="goStep4()">Siguiente</button>
-    </div>
-  </div>
-
-  <!-- PASO 4: Insumos -->
-  <div class="step" id="step4">
-    <h2>Paso 4 - Insumos por ubicacion</h2>
-    <div id="insumosForms"></div>
-    <div class="btn-group">
-      <button class="btn btn-secondary" onclick="showStep(3)">Atras</button>
-      <button class="btn btn-primary" onclick="goStep5()">Siguiente</button>
-    </div>
-  </div>
-
-  <!-- PASO 5: Horas admin + Condiciones -->
-  <div class="step" id="step5">
-    <h2>Paso 5 - Horas administrativas y condiciones</h2>
-    <div class="row">
-      <div><label>Horas administrativas mensuales</label><input type="number" id="horasAdmin" min="0" value="0" step="0.5"></div>
-      <div><label>Valor hora administrativa</label><input type="text" id="valorHoraAdmin" readonly></div>
-    </div>
-    <hr style="margin:20px 0;border:none;border-top:1px solid #e8e8e8">
-    <label>Condiciones particulares</label>
-    <div class="row">
-      <div>
-        <select id="condTipo">
-          <option value="ninguno">Sin condiciones</option>
-          <option value="porcentaje">Porcentaje sobre mensual</option>
-          <option value="monto_fijo">Monto fijo</option>
-        </select>
+      <!-- PASO 1: Tipo de cliente -->
+      <div class="step active" id="step1">
+        <h2>Paso 1 - Tipo de cliente</h2>
+        <label>Cantidad de ubicaciones del cliente</label>
+        <div class="row" style="margin-top:10px">
+          <div>
+            <select id="tipoCliente">
+              <option value="unica">Ubicacion unica</option>
+              <option value="multiple">Multiples sucursales</option>
+            </select>
+          </div>
+          <div id="cantUbicacionesWrap" class="hidden">
+            <input type="number" id="cantUbicaciones" min="2" max="20" value="2" placeholder="Cant. ubicaciones">
+          </div>
+        </div>
+        <div class="btn-group"><button class="btn btn-primary" onclick="goStep2()">Siguiente</button></div>
       </div>
-      <div><input type="number" id="condValor" min="0" value="0" placeholder="Valor" disabled></div>
-    </div>
-    <div id="condDescWrap" class="hidden" style="margin-top:10px">
-      <label>Motivo / descripcion</label>
-      <input type="text" id="condDesc" placeholder="Ej: cliente dificil, zona peligrosa...">
-    </div>
-    <div class="btn-group">
-      <button class="btn btn-secondary" onclick="showStep(4)">Atras</button>
-      <button class="btn btn-primary" onclick="goStep6()">Calcular</button>
-    </div>
-  </div>
 
-  <!-- PASO 6: Resumen costos -->
-  <div class="step" id="step6">
-    <h2>Paso 6 - Resumen de costos</h2>
-    <div id="resumenCostos"></div>
-    <div class="btn-group">
-      <button class="btn btn-secondary" onclick="showStep(5)">Modificar</button>
-      <button class="btn btn-primary" onclick="goStep7()">Confirmar y completar datos del cliente</button>
-    </div>
-  </div>
+      <!-- PASO 2: Ubicaciones -->
+      <div class="step" id="step2">
+        <h2>Paso 2 - Datos de ubicaciones</h2>
+        <div id="ubicacionesForms"></div>
+        <div class="btn-group">
+          <button class="btn btn-secondary" onclick="showStep(1)">Atras</button>
+          <button class="btn btn-primary" onclick="goStep3()">Siguiente</button>
+        </div>
+      </div>
 
-  <!-- PASO 7: Datos del cliente -->
-  <div class="step" id="step7">
-    <h2>Paso 7 - Datos del cliente</h2>
-    <label>Razon Social</label>
-    <input type="text" id="razonSocial">
-    <div class="row">
-      <div><label>CUIT (XX-XXXXXXXX-X)</label><input type="text" id="cuit" placeholder="30-12345678-9"></div>
-      <div><label>Telefono de contacto</label><input type="text" id="telefono"></div>
-    </div>
-    <div class="row">
-      <div><label>Nombre del contacto</label><input type="text" id="contactoNombre"></div>
-      <div><label>Cargo</label><input type="text" id="contactoCargo"></div>
-    </div>
-    <div class="btn-group">
-      <button class="btn btn-secondary" onclick="showStep(6)">Atras</button>
-      <button class="btn btn-success" onclick="generarCotizacion()">Generar cotizacion</button>
-    </div>
-  </div>
+      <!-- PASO 3: Detalle operativo -->
+      <div class="step" id="step3">
+        <h2>Paso 3 - Detalle operativo</h2>
+        <div id="operativoForms"></div>
+        <div class="btn-group">
+          <button class="btn btn-secondary" onclick="showStep(2)">Atras</button>
+          <button class="btn btn-primary" onclick="goStep4()">Siguiente</button>
+        </div>
+      </div>
 
-  <!-- PASO 8: Cotizacion final -->
-  <div class="step" id="step8">
-    <h2>Cotizacion generada</h2>
-    <p style="margin-bottom:15px;font-size:0.9em;color:#666">La cotizacion se abrio en una nueva ventana. Desde ahi podes imprimirla o guardarla como PDF (Ctrl+P).</p>
-    <div class="btn-group">
-      <button class="btn btn-secondary" onclick="showStep(7)">Atras</button>
-      <button class="btn btn-primary" onclick="abrirCotizacion()">Volver a abrir cotizacion</button>
-      <button class="btn btn-success" onclick="location.reload()">Nueva cotizacion</button>
+      <!-- PASO 4: Insumos -->
+      <div class="step" id="step4">
+        <h2>Paso 4 - Insumos por ubicacion</h2>
+        <div id="insumosForms"></div>
+        <div class="btn-group">
+          <button class="btn btn-secondary" onclick="showStep(3)">Atras</button>
+          <button class="btn btn-primary" onclick="goStep5()">Siguiente</button>
+        </div>
+      </div>
+
+      <!-- PASO 5: Horas admin + Condiciones + Descuento global -->
+      <div class="step" id="step5">
+        <h2>Paso 5 - Horas administrativas, condiciones y descuento</h2>
+        <div class="row">
+          <div><label>Horas administrativas mensuales</label><input type="number" id="horasAdmin" min="0" value="0" step="0.5"></div>
+          <div><label>Valor hora administrativa</label><input type="text" id="valorHoraAdmin" readonly></div>
+        </div>
+        <hr style="margin:20px 0;border:none;border-top:1px solid #e8e8e8">
+        <label>Condiciones particulares</label>
+        <div class="row">
+          <div>
+            <select id="condTipo">
+              <option value="ninguno">Sin condiciones</option>
+              <option value="porcentaje">Porcentaje sobre mensual</option>
+              <option value="monto_fijo">Monto fijo</option>
+            </select>
+          </div>
+          <div><input type="number" id="condValor" min="0" value="0" placeholder="Valor" disabled></div>
+        </div>
+        <div id="condDescWrap" class="hidden" style="margin-top:10px">
+          <label>Motivo / descripcion</label>
+          <input type="text" id="condDesc" placeholder="Ej: cliente dificil, zona peligrosa...">
+        </div>
+        <hr style="margin:20px 0;border:none;border-top:1px solid #e8e8e8">
+        <label>Descuento global</label>
+        <div class="row">
+          <div><label>% Descuento global</label><input type="number" id="descGlobal" min="0" max="100" value="0" step="0.5"></div>
+          <div><label>Motivo del descuento</label><input type="text" id="descGlobalMotivo" placeholder="Ej: cliente nuevo, promocion..."></div>
+        </div>
+        <div class="btn-group">
+          <button class="btn btn-secondary" onclick="showStep(4)">Atras</button>
+          <button class="btn btn-primary" onclick="goStep6()">Calcular</button>
+        </div>
+      </div>
+
+      <!-- PASO 6: Resumen costos -->
+      <div class="step" id="step6">
+        <h2>Paso 6 - Resumen de costos</h2>
+        <div id="resumenCostos"></div>
+        <div class="btn-group">
+          <button class="btn btn-secondary" onclick="showStep(5)">Modificar</button>
+          <button class="btn btn-primary" onclick="goStep7()">Confirmar y completar datos del cliente</button>
+        </div>
+      </div>
+
+      <!-- PASO 7: Datos del cliente -->
+      <div class="step" id="step7">
+        <h2>Paso 7 - Datos del cliente</h2>
+        <label>Razon Social</label>
+        <input type="text" id="razonSocial">
+        <div class="row">
+          <div><label>CUIT (XX-XXXXXXXX-X)</label><input type="text" id="cuit" placeholder="30-12345678-9"></div>
+          <div><label>Telefono de contacto</label><input type="text" id="telefono"></div>
+        </div>
+        <div class="row">
+          <div><label>Nombre del contacto</label><input type="text" id="contactoNombre"></div>
+          <div><label>Cargo</label><input type="text" id="contactoCargo"></div>
+        </div>
+        <div class="btn-group">
+          <button class="btn btn-secondary" onclick="showStep(6)">Atras</button>
+          <button class="btn btn-success" onclick="generarCotizacion()">Generar cotizacion</button>
+        </div>
+      </div>
+
+      <!-- PASO 8: Cotizacion final -->
+      <div class="step" id="step8">
+        <h2>Cotizacion generada</h2>
+        <p style="margin-bottom:15px;font-size:0.9em;color:#666">La cotizacion se abrio en una nueva ventana. Desde ahi podes imprimirla o guardarla como PDF (Ctrl+P).</p>
+        <div class="btn-group">
+          <button class="btn btn-secondary" onclick="showStep(7)">Atras</button>
+          <button class="btn btn-primary" onclick="abrirCotizacion()">Volver a abrir cotizacion</button>
+          <button class="btn btn-danger" onclick="descargarTXT()">Descargar TXT</button>
+          <button class="btn btn-success" onclick="location.reload()">Nueva cotizacion</button>
+        </div>
+      </div>
     </div>
   </div>
 </div>
@@ -248,6 +307,7 @@ function showStep(n) {
   window.scrollTo({top: 0, behavior: 'smooth'});
 }
 
+// Event listeners
 document.getElementById('tipoCliente').addEventListener('change', function() {
   document.getElementById('cantUbicacionesWrap').classList.toggle('hidden', this.value === 'unica');
 });
@@ -256,6 +316,13 @@ document.getElementById('condTipo').addEventListener('change', function() {
   document.getElementById('condDescWrap').classList.toggle('hidden', this.value === 'ninguno');
 });
 
+// Sidebar toggle
+function toggleSidebar() {
+  document.querySelector('.sidebar').classList.toggle('open');
+  document.querySelector('.sidebar-overlay').classList.toggle('open');
+}
+
+// PASO 2
 function goStep2() {
   const tipo = document.getElementById('tipoCliente').value;
   const cant = tipo === 'unica' ? 1 : parseInt(document.getElementById('cantUbicaciones').value) || 2;
@@ -270,33 +337,84 @@ function goStep2() {
       <div class="row">
         <div><label>Superficie (m2)</label><input type="number" class="ub-m2" min="1" value="100"></div>
         <div><label>Frecuencia</label><select class="ub-freq"><option>Mensual</option><option>Quincenal</option><option>Semanal</option></select></div>
-      </div>
-      <div class="row">
-        <div><label>Dia preferido</label><select class="ub-dia"><option>Lunes a Viernes</option><option>Sabado manana</option><option>Sabado tarde</option><option>Domingo</option></select></div>
-        <div><label>Horario</label><select class="ub-horario"><option>Diurno (8-18hs)</option><option>Nocturno (despues 22hs)</option></select></div>
       </div>`;
     c.appendChild(card);
   }
   showStep(2);
 }
 
+// PASO 3 - con visitas por defecto segun frecuencia + visitas extra
 function goStep3() {
   const c = document.getElementById('operativoForms');
   c.innerHTML = '';
+  const freqs = document.querySelectorAll('.ub-freq');
   document.querySelectorAll('.ub-nombre').forEach((n, i) => {
+    const freq = freqs[i].value;
+    let defaultVisitas = 4;
+    if (freq === 'Mensual') defaultVisitas = 1;
+    else if (freq === 'Quincenal') defaultVisitas = 2;
+    else if (freq === 'Semanal') defaultVisitas = 4;
+
     const card = document.createElement('div');
     card.className = 'ubicacion-card';
-    card.innerHTML = `<h3>${n.value}</h3>
+    card.innerHTML = `<h3>${n.value} <span class="tag">${freq}</span></h3>
+      <p style="font-size:0.9em;font-weight:600;color:#0a6e6f;margin-bottom:8px">Visitas regulares</p>
       <div class="row">
         <div><label>Horas por visita</label><input type="number" class="op-horas" min="0.5" step="0.5" value="2"></div>
         <div><label>Operarios</label><input type="number" class="op-operarios" min="1" value="1"></div>
-        <div><label>Visitas/mes</label><input type="number" class="op-visitas" min="1" value="4"></div>
+        <div><label>Visitas/mes</label><input type="number" class="op-visitas" min="1" value="${defaultVisitas}"></div>
+      </div>
+      <div class="row">
+        <div><label>Dia preferido</label><select class="op-dia"><option>Lunes a Viernes</option><option>Sabado manana</option><option>Sabado tarde</option><option>Domingo</option></select></div>
+        <div><label>Horario</label><select class="op-horario"><option>Diurno (8-18hs)</option><option>Nocturno (despues 22hs)</option></select></div>
+      </div>
+      <hr style="margin:12px 0;border:none;border-top:1px solid #e0e0e0">
+      <label style="margin-bottom:8px">Hay visitas extra o fuera de las ya programadas?</label>
+      <div class="row" style="margin-bottom:8px">
+        <div>
+          <select class="op-tiene-extra" onchange="toggleExtraFields(this)">
+            <option value="no">No</option>
+            <option value="si">Si</option>
+          </select>
+        </div>
+      </div>
+      <div class="extra-fields" style="display:none">
+        <p style="font-size:0.9em;font-weight:600;color:#0a6e6f;margin-bottom:8px">Visitas extraordinarias</p>
+        <div class="row">
+          <div style="flex:2"><label>Motivo</label><input type="text" class="op-extra-motivo" placeholder="Ej: Refuerzo, Emergencia, Auditoria..."></div>
+          <div style="flex:1"><label>Bonificada</label><select class="op-extra-bonif" onchange="toggleBonifExtra(this)"><option value="no">No</option><option value="si">Si</option></select></div>
+        </div>
+        <div class="row">
+          <div><label>Horas por visita</label><input type="number" class="op-extra-horas" min="0.5" step="0.5" value="2"></div>
+          <div><label>Operarios</label><input type="number" class="op-extra-operarios" min="1" value="1"></div>
+          <div><label>Visitas/mes</label><input type="number" class="op-extra-visitas" min="0" value="1"></div>
+        </div>
+        <div class="row">
+          <div><label>Dia preferido</label><select class="op-extra-dia"><option>Lunes a Viernes</option><option>Sabado manana</option><option>Sabado tarde</option><option>Domingo</option></select></div>
+          <div><label>Horario</label><select class="op-extra-horario"><option>Diurno (8-18hs)</option><option>Nocturno (despues 22hs)</option></select></div>
+        </div>
       </div>`;
     c.appendChild(card);
   });
   showStep(3);
 }
 
+function toggleExtraFields(sel) {
+  const fields = sel.closest('.ubicacion-card').querySelector('.extra-fields');
+  fields.style.display = sel.value === 'si' ? 'block' : 'none';
+  if (sel.value === 'no') {
+    fields.querySelector('.op-extra-visitas').value = 0;
+  }
+}
+
+function toggleBonifExtra(sel) {
+  const card = sel.closest('.ubicacion-card');
+  const campos = card.querySelectorAll('.op-extra-horas, .op-extra-operarios, .op-extra-visitas, .op-extra-dia, .op-extra-horario');
+  campos.forEach(c => { c.style.opacity = sel.value === 'si' ? '0.6' : '1'; });
+}
+
+
+// PASO 4 - con descuento % por insumo
 function goStep4() {
   const c = document.getElementById('insumosForms');
   c.innerHTML = '';
@@ -304,19 +422,32 @@ function goStep4() {
     const card = document.createElement('div');
     card.className = 'ubicacion-card';
     let h = `<h3>${n.value}</h3>`;
+    h += `<div class="insumo-header"><span>Insumo</span><span>P. Unit.</span><span>Cant.</span><span>Tipo</span><span>% Desc</span></div>`;
     for (const [key, ins] of Object.entries(precios.insumos)) {
       const tag = key === 'trampa_uv' ? '<span class="tag">Desc. por cant.</span>' : '';
       h += `<div class="insumo-row">
         <label>${ins.nombre} ${tag}</label>
         <div class="insumo-precio">${fmt(ins.precio_unitario)}/${ins.unidad}</div>
-        <input type="number" class="ins-cant" data-key="${key}" data-ub="${i}" min="0" value="0" style="width:70px">
+        <input type="number" class="ins-cant" data-key="${key}" data-ub="${i}" min="0" value="0" style="width:70px"${key === 'trampa_uv' ? ' onchange="actualizarDescTrampa()"' : ''}>
         <select class="ins-tipo" data-key="${key}" data-ub="${i}" style="width:90px"><option value="U">Unico</option><option value="M">Mensual</option></select>
+        <input type="number" class="ins-desc" data-key="${key}" data-ub="${i}" min="0" max="100" value="0" style="width:65px" placeholder="% Desc" title="Descuento %">
       </div>`;
     }
     card.innerHTML = h;
     c.appendChild(card);
   });
   showStep(4);
+}
+
+function actualizarDescTrampa() {
+  let totalTrampas = 0;
+  document.querySelectorAll('.ins-cant[data-key="trampa_uv"]').forEach(function(inp) {
+    totalTrampas += parseInt(inp.value) || 0;
+  });
+  const desc = getDescuentoTrampa(totalTrampas);
+  document.querySelectorAll('.ins-desc[data-key="trampa_uv"]').forEach(function(inp) {
+    inp.value = desc;
+  });
 }
 
 function goStep5() { showStep(5); }
@@ -327,30 +458,53 @@ function getDescuentoTrampa(t) {
   return 0;
 }
 
+function calcAjuste(dia, hor) {
+  let aj = 0, ajD = [];
+  if (hor.includes('Nocturno')) { aj += precios.ajustes.nocturno.porcentaje; ajD.push('Nocturno +'+precios.ajustes.nocturno.porcentaje+'%'); }
+  if (dia === 'Domingo') { aj += precios.ajustes.domingo.porcentaje; ajD.push('Domingo +'+precios.ajustes.domingo.porcentaje+'%'); }
+  if (dia === 'Sabado tarde') { aj += precios.ajustes.sabado_post_13.porcentaje; ajD.push('Sab post 13hs +'+precios.ajustes.sabado_post_13.porcentaje+'%'); }
+  return { aj, ajDesc: ajD.length ? ajD.join(', ') : 'Ninguno' };
+}
+
 function getUbicaciones() {
   const ubN = document.querySelectorAll('.ub-nombre'), ubD = document.querySelectorAll('.ub-dir');
   const ubM = document.querySelectorAll('.ub-m2'), ubF = document.querySelectorAll('.ub-freq');
-  const ubDi = document.querySelectorAll('.ub-dia'), ubH = document.querySelectorAll('.ub-horario');
   const opH = document.querySelectorAll('.op-horas'), opO = document.querySelectorAll('.op-operarios'), opV = document.querySelectorAll('.op-visitas');
+  const opDia = document.querySelectorAll('.op-dia'), opHor = document.querySelectorAll('.op-horario');
+  const opExtraH = document.querySelectorAll('.op-extra-horas'), opExtraO = document.querySelectorAll('.op-extra-operarios'), opExtraV = document.querySelectorAll('.op-extra-visitas');
+  const opExtraDia = document.querySelectorAll('.op-extra-dia'), opExtraHor = document.querySelectorAll('.op-extra-horario');
+  const opExtraMotivo = document.querySelectorAll('.op-extra-motivo'), opExtraBonif = document.querySelectorAll('.op-extra-bonif');
   const ubs = [];
   ubN.forEach((_, i) => {
-    let aj = 0, ajD = [];
-    const dia = ubDi[i].value, hor = ubH[i].value;
-    if (hor.includes('Nocturno')) { aj += precios.ajustes.nocturno.porcentaje; ajD.push('Nocturno +'+precios.ajustes.nocturno.porcentaje+'%'); }
-    if (dia === 'Domingo') { aj += precios.ajustes.domingo.porcentaje; ajD.push('Domingo +'+precios.ajustes.domingo.porcentaje+'%'); }
-    if (dia === 'Sabado tarde') { aj += precios.ajustes.sabado_post_13.porcentaje; ajD.push('Sab post 13hs +'+precios.ajustes.sabado_post_13.porcentaje+'%'); }
+    // Ajuste visitas regulares
+    const dia = opDia[i].value, hor = opHor[i].value;
+    const ajReg = calcAjuste(dia, hor);
     const horas = parseFloat(opH[i].value)||0, ops = parseInt(opO[i].value)||0, vis = parseInt(opV[i].value)||0;
-    const costoOp = horas * precios.mano_de_obra.valor_hora_operario * ops * vis * (1 + aj/100);
+    const costoOp = horas * precios.mano_de_obra.valor_hora_operario * ops * vis * (1 + ajReg.aj/100);
+
+    // Visitas extraordinarias (misma tarifa que regulares)
+    const extHoras = opExtraH[i] ? (parseFloat(opExtraH[i].value)||0) : 0;
+    const extOps = opExtraO[i] ? (parseInt(opExtraO[i].value)||0) : 0;
+    const extVis = opExtraV[i] ? (parseInt(opExtraV[i].value)||0) : 0;
+    const diaExtra = opExtraDia[i] ? opExtraDia[i].value : 'Lunes a Viernes';
+    const horExtra = opExtraHor[i] ? opExtraHor[i].value : 'Diurno (8-18hs)';
+    const extMotivo = opExtraMotivo[i] ? opExtraMotivo[i].value : '';
+    const extBonificada = opExtraBonif[i] ? opExtraBonif[i].value === 'si' : false;
+    const ajExt = calcAjuste(diaExtra, horExtra);
+    const costoExtraBruto = extVis * extHoras * precios.mano_de_obra.valor_hora_operario * extOps * (1 + ajExt.aj/100);
+    const costoExtra = extBonificada ? 0 : costoExtraBruto;
+
     const insumos = [];
     document.querySelectorAll(`.ins-cant[data-ub="${i}"]`).forEach((inp, j) => {
       const cant = parseInt(inp.value)||0;
       if (cant > 0) {
         const key = inp.dataset.key;
         const tipo = document.querySelectorAll(`.ins-tipo[data-ub="${i}"]`)[j].value;
-        insumos.push({key, cant, tipo, nombre: precios.insumos[key].nombre, precio: precios.insumos[key].precio_unitario, unidad: precios.insumos[key].unidad});
+        const desc = parseFloat(document.querySelectorAll(`.ins-desc[data-ub="${i}"]`)[j].value) || 0;
+        insumos.push({key, cant, tipo, desc, nombre: precios.insumos[key].nombre, precio: precios.insumos[key].precio_unitario, unidad: precios.insumos[key].unidad});
       }
     });
-    ubs.push({nombre:ubN[i].value, direccion:ubD[i].value, m2:ubM[i].value, frecuencia:ubF[i].value, dia, horario:hor, horas, operarios:ops, visitas:vis, ajuste:aj, ajusteDesc:ajD.length?ajD.join(', '):'Ninguno', costoOp, insumos});
+    ubs.push({nombre:ubN[i].value, direccion:ubD[i].value, m2:ubM[i].value, frecuencia:ubF[i].value, dia, horario:hor, ajuste:ajReg.aj, ajusteDesc:ajReg.ajDesc, horas, operarios:ops, visitas:vis, costoOp, extHoras, extOperarios:extOps, extVisitas:extVis, diaExtra, horarioExtra:horExtra, ajusteExtra:ajExt.aj, ajusteExtraDesc:ajExt.ajDesc, extMotivo, extBonificada, costoExtraBruto, costoExtra, insumos});
   });
   return ubs;
 }
@@ -364,27 +518,57 @@ function calcular() {
   const descTrampa = getDescuentoTrampa(totalTrampas);
   let html = '', subtotalMensual = 0, totalInsIniciales = 0;
 
-  if (descTrampa > 0) html += `<div class="aviso">Descuento Trampas UV: ${descTrampa}% (${totalTrampas} unidades totales)</div>`;
+  if (descTrampa > 0) html += `<div class="aviso">Descuento Trampas UV: ${descTrampa}% (${totalTrampas} unidades totales) - aplicado automaticamente en campo % Desc</div>`;
 
   ubicaciones.forEach(u => {
     let insUH = '', insMH = '', tU = 0, tM = 0;
     u.insumos.forEach(ins => {
       let p = ins.precio, dt = '';
-      if (ins.key==='trampa_uv'&&descTrampa>0) { p=ins.precio*(1-descTrampa/100); dt=` (-${descTrampa}%)`; }
-      const s = ins.cant*p;
+      if (ins.desc === 100) {
+        p = 0;
+        dt = ' (Bonificado)';
+      } else if (ins.desc > 0) {
+        p = ins.precio * (1 - ins.desc/100);
+        dt = ` (-${ins.desc}%)`;
+      }
+      const s = ins.cant * p;
       const row = `<tr><td>${ins.cant}</td><td>${ins.nombre}${dt}</td><td>${fmt(p)}</td><td>${fmt(s)}</td></tr>`;
       if (ins.tipo==='U') { insUH+=row; tU+=s; } else { insMH+=row; tM+=s; }
     });
-    const serv = u.costoOp+tM;
+    const serv = u.costoOp + u.costoExtra + tM;
     subtotalMensual += serv;
     totalInsIniciales += tU;
-    html += `<div class="ubicacion-card"><h3>${u.nombre} <span class="tag">${u.frecuencia}</span>${u.ajuste>0?'<span class="tag" style="background:#fff3cd;color:#856404">'+u.ajusteDesc+'</span>':''}</h3>
-      <p style="font-size:0.85em;color:#666;margin-bottom:10px">${u.direccion} | ${u.m2} m2 | ${u.dia} | ${u.horario}</p>
-      <table class="resumen-table"><tr><th colspan="4">Detalle operativo</th></tr>
-      <tr><td>${u.horas}hs</td><td>${u.operarios} operario(s)</td><td>${u.visitas} visitas/mes</td><td><strong>${fmt(u.costoOp)}</strong></td></tr></table>`;
+    html += `<div class="ubicacion-card"><h3>${u.nombre} <span class="tag">${u.frecuencia}</span></h3>
+      <p style="font-size:0.85em;color:#666;margin-bottom:10px">${u.direccion} | ${u.m2} m2</p>
+      <table class="resumen-table"><tr><th colspan="4">Visitas regulares</th></tr>
+      <tr><td>${u.horas}hs</td><td>${u.operarios} operario(s)</td><td>${u.visitas} visitas/mes</td><td><strong>${fmt(u.costoOp)}</strong></td></tr>
+      <tr><td colspan="2">${u.dia} | ${u.horario}</td><td colspan="2">${u.ajuste>0?'<span style="color:#c67000">'+u.ajusteDesc+'</span>':'Sin ajuste'}</td></tr></table>`;
+    if (u.extVisitas > 0) {
+      const motivoTxt = u.extMotivo ? ' - '+u.extMotivo : '';
+      html += `<table class="resumen-table"><tr><th colspan="4">Visitas extraordinarias${motivoTxt}</th></tr>
+      <tr><td>${u.extHoras}hs</td><td>${u.extOperarios} operario(s)</td><td>${u.extVisitas} visitas/mes</td><td><strong>${u.extBonificada ? '<span style="color:#4caf50">Bonificado -'+fmt(u.costoExtraBruto)+'</span>' : fmt(u.costoExtra)}</strong></td></tr>
+      <tr><td colspan="2">${u.diaExtra} | ${u.horarioExtra}</td><td colspan="2">${u.ajusteExtra>0?'<span style="color:#c67000">'+u.ajusteExtraDesc+'</span>':'Sin ajuste'}</td></tr></table>`;
+    }
     if (insUH) html += `<table class="resumen-table"><tr><th>Cant</th><th>Insumo (Unico)</th><th>P.Unit</th><th>Subtotal</th></tr>${insUH}<tr class="subtotal-row"><td colspan="3">Total insumos unicos</td><td>${fmt(tU)}</td></tr></table>`;
     if (insMH) html += `<table class="resumen-table"><tr><th>Cant</th><th>Insumo (Mensual)</th><th>P.Unit</th><th>Subtotal</th></tr>${insMH}<tr class="subtotal-row"><td colspan="3">Total insumos mensuales</td><td>${fmt(tM)}</td></tr></table>`;
-    html += `<table class="resumen-table"><tr class="total-row"><td colspan="3">Servicio mensual</td><td>${fmt(serv)}</td></tr><tr><td colspan="3">Insumos instalacion</td><td>${fmt(tU)}</td></tr></table></div>`;
+
+    // Bonificaciones
+    let bonifRows = '';
+    let totalBonif = 0;
+    if (u.extVisitas > 0 && u.extBonificada) {
+      bonifRows += `<tr><td colspan="3">Visitas extraordinarias${u.extMotivo?' - '+u.extMotivo:''}</td><td style="color:#4caf50;font-weight:600">-${fmt(u.costoExtraBruto)}</td></tr>`;
+      totalBonif += u.costoExtraBruto;
+    }
+    u.insumos.forEach(ins => {
+      if (ins.desc > 0) {
+        const montoBonif = ins.cant * ins.precio * ins.desc / 100;
+        bonifRows += `<tr><td>${ins.cant}x</td><td>${ins.nombre} (${ins.desc}%)</td><td></td><td style="color:#4caf50;font-weight:600">-${fmt(montoBonif)}</td></tr>`;
+        totalBonif += montoBonif;
+      }
+    });
+    if (bonifRows) html += `<table class="resumen-table"><tr><th colspan="4" style="background:#e8f5e9;color:#2e7d32">Bonificaciones</th></tr>${bonifRows}<tr class="subtotal-row"><td colspan="3">Total bonificado</td><td style="color:#4caf50;font-weight:700">-${fmt(totalBonif)}</td></tr></table>`;
+
+    html += `<table class="resumen-table"><tr class="total-row"><td colspan="3">Servicio mensual</td><td>${fmt(serv)}</td></tr><tr><td colspan="3">Insumos a abonar por unica vez</td><td>${fmt(tU)}</td></tr></table></div>`;
   });
 
   const hAdmin = parseFloat(document.getElementById('horasAdmin').value)||0;
@@ -395,22 +579,50 @@ function calcular() {
   let ajPart = 0;
   if (cTipo==='porcentaje') ajPart = (subtotalMensual+cAdmin)*cVal/100;
   else if (cTipo==='monto_fijo') ajPart = cVal;
-  const valMensual = subtotalMensual+cAdmin+ajPart;
-  const valInicial = valMensual+totalInsIniciales;
+
+  // Descuento global
+  const descGlobal = parseFloat(document.getElementById('descGlobal').value) || 0;
+  const descGlobalMotivo = document.getElementById('descGlobalMotivo').value || '';
+  const baseParaDescuento = subtotalMensual + cAdmin + ajPart;
+  const montoDescGlobal = baseParaDescuento * descGlobal / 100;
+
+  const valMensual = baseParaDescuento - montoDescGlobal;
+  const valInicial = valMensual + totalInsIniciales;
+
+  // IVA 21%
+  const ivaMensual = valMensual * 0.21;
+  const valMensualConIva = valMensual + ivaMensual;
+  const ivaInicial = valInicial * 0.21;
+  const valInicialConIva = valInicial + ivaInicial;
 
   html += `<div class="resumen-final">
     <div class="line"><span>Subtotal mensual (ubicaciones)</span><span>${fmt(subtotalMensual)}</span></div>`;
   if (hAdmin>0) html += `<div class="line"><span>Horas administrativas (${hAdmin}hs x ${fmt(precios.mano_de_obra.valor_hora_administrativa)})</span><span>${fmt(cAdmin)}</span></div>`;
   if (ajPart>0) html += `<div class="line"><span>Condiciones particulares${cDesc?' ('+cDesc+')':''}${cTipo==='porcentaje'?' '+cVal+'%':''}</span><span>${fmt(ajPart)}</span></div>`;
-  if (totalInsIniciales>0) html += `<div class="line"><span>Insumos instalacion inicial</span><span>${fmt(totalInsIniciales)}</span></div>`;
-  html += `<div class="line big"><span>VALOR MES INICIAL</span><span>${fmt(valInicial)}</span></div>
-    <div class="line big"><span>VALOR MENSUAL RECURRENTE</span><span>${fmt(valMensual)}</span></div></div>`;
+  if (montoDescGlobal>0) html += `<div class="line"><span>Descuento global ${descGlobal}%${descGlobalMotivo?' ('+descGlobalMotivo+')':''}</span><span>-${fmt(montoDescGlobal)}</span></div>`;
+  if (totalInsIniciales>0) html += `<div class="line"><span>Insumos a abonar por unica vez</span><span>${fmt(totalInsIniciales)}</span></div>`;
+
+  html += `<div class="line iva" style="margin-top:12px;padding-top:8px;border-top:1px solid rgba(255,255,255,0.15)"><span>Valor Mensual (sin IVA)</span><span>${fmt(valMensual)}</span></div>`;
+  html += `<div class="line iva"><span>IVA 21%</span><span>${fmt(ivaMensual)}</span></div>`;
+  html += `<div class="line big"><span>VALOR MENSUAL + IVA</span><span>${fmt(valMensualConIva)}</span></div>`;
+
+  html += `<div class="line iva" style="margin-top:12px;padding-top:8px;border-top:1px solid rgba(255,255,255,0.15)"><span>Valor Mes Inicial (sin IVA)</span><span>${fmt(valInicial)}</span></div>`;
+  html += `<div class="line iva"><span>IVA 21%</span><span>${fmt(ivaInicial)}</span></div>`;
+  html += `<div class="line big"><span>VALOR MES INICIAL + IVA</span><span>${fmt(valInicialConIva)}</span></div></div>`;
 
   document.getElementById('resumenCostos').innerHTML = html;
-  window._cotData = {ubicaciones, subtotalMensual, costoAdmin:cAdmin, horasAdmin:hAdmin, ajusteParticular:ajPart, condTipo:cTipo, condValor:cVal, condDesc:cDesc, valorMensualTotal:valMensual, totalInsIniciales, valorInicialTotal:valInicial, descTrampa, totalTrampas};
+  window._cotData = {ubicaciones, subtotalMensual, costoAdmin:cAdmin, horasAdmin:hAdmin, ajusteParticular:ajPart, condTipo:cTipo, condValor:cVal, condDesc:cDesc, descGlobal, descGlobalMotivo, montoDescGlobal, valorMensualTotal:valMensual, totalInsIniciales, valorInicialTotal:valInicial, ivaMensual, valMensualConIva, ivaInicial, valInicialConIva, descTrampa, totalTrampas};
 }
 
 function goStep7() { showStep(7); }
+
+// Numeracion correlativa
+function getNextCotNumber() {
+  let last = parseInt(localStorage.getItem('lastCotNumber')) || 0;
+  last++;
+  localStorage.setItem('lastCotNumber', last);
+  return String(last).padStart(4, '0');
+}
 
 function generarCotizacion() {
   const d = window._cotData;
@@ -422,7 +634,8 @@ function generarCotizacion() {
   const now = new Date();
   const fecha = now.toLocaleDateString('es-AR',{day:'2-digit',month:'2-digit',year:'numeric'});
   const hora = now.toLocaleTimeString('es-AR',{hour:'2-digit',minute:'2-digit'});
-  const num = '0001';
+  const num = getNextCotNumber();
+  window._cotNumero = num;
 
   let ubsHtml = '';
   d.ubicaciones.forEach(u => {
@@ -431,29 +644,54 @@ function generarCotizacion() {
     const calcIns = (arr) => {
       let t = 0, rows = '';
       arr.forEach(ins => {
-        let p = ins.precio;
-        if (ins.key==='trampa_uv'&&d.descTrampa>0) p = ins.precio*(1-d.descTrampa/100);
+        let p = ins.precio, dt = '';
+        if (ins.desc === 100) {
+          p = 0;
+          dt = ' <small>(Bonificado)</small>';
+        } else if (ins.desc > 0) {
+          p = ins.precio * (1 - ins.desc/100);
+          dt = ` <small>(-${ins.desc}%)</small>`;
+        }
         const s = ins.cant*p;
         t += s;
-        rows += `<tr><td>${ins.cant}</td><td>${ins.nombre}${ins.key==='trampa_uv'&&d.descTrampa>0?' <small>(-'+d.descTrampa+'%)</small>':''}</td><td class="r">${fmt(p)}</td><td class="r">${fmt(s)}</td></tr>`;
+        rows += `<tr><td>${ins.cant}</td><td>${ins.nombre}${dt}</td><td class="r">${fmt(p)}</td><td class="r">${fmt(s)}</td></tr>`;
       });
       return {rows, total: t};
     };
     const uData = calcIns(unicos), mData = calcIns(mensuales);
-    const servM = u.costoOp + mData.total;
+    const servM = u.costoOp + u.costoExtra + mData.total;
 
     ubsHtml += `<div class="ub-section">
       <h3>${u.nombre}</h3>
-      <p class="ub-meta">${u.direccion} | ${u.m2} m2 | ${u.frecuencia} | ${u.dia} | ${u.horario}</p>
-      <table><thead><tr><th colspan="4">Detalle operativo</th></tr></thead>
+      <p class="ub-meta">${u.direccion} | ${u.m2} m2 | ${u.frecuencia}</p>
+      <table><thead><tr><th colspan="4">Visitas regulares</th></tr></thead>
       <tbody><tr><td>Horas: ${u.horas}</td><td>Operarios: ${u.operarios}</td><td>Visitas/mes: ${u.visitas}</td><td class="r"><strong>${fmt(u.costoOp)}</strong></td></tr>
-      ${u.ajuste>0?'<tr><td colspan="4" class="ajuste">Ajuste: '+u.ajusteDesc+'</td></tr>':''}</tbody></table>`;
+      <tr><td colspan="2">${u.dia} | ${u.horario}</td><td colspan="2">${u.ajuste>0?'<span class="ajuste">Ajuste: '+u.ajusteDesc+'</span>':'Sin ajuste'}</td></tr>
+      </tbody></table>
+      ${u.extVisitas>0?'<table><thead><tr><th colspan="4">Visitas extraordinarias'+(u.extMotivo?' - '+u.extMotivo:'')+'</th></tr></thead><tbody><tr><td>Horas: '+u.extHoras+'</td><td>Operarios: '+u.extOperarios+'</td><td>Visitas/mes: '+u.extVisitas+'</td><td class="r"><strong>'+(u.extBonificada?'<span style="color:#2e7d32">Bonificado -'+fmt(u.costoExtraBruto)+'</span>':fmt(u.costoExtra))+'</strong></td></tr><tr><td colspan="2">'+u.diaExtra+' | '+u.horarioExtra+'</td><td colspan="2">'+(u.ajusteExtra>0?'<span class="ajuste">Ajuste: '+u.ajusteExtraDesc+'</span>':'Sin ajuste')+'</td></tr></tbody></table>':''}`;
 
-    if (uData.rows) ubsHtml += `<table><thead><tr><th>Cant</th><th>Insumo unico</th><th class="r">P.Unit</th><th class="r">Subtotal</th></tr></thead><tbody>${uData.rows}<tr class="total"><td colspan="3">Total insumos unicos</td><td class="r">${fmt(uData.total)}</td></tr></tbody></table>`;
+    if (uData.rows) ubsHtml += `<table><thead><tr><th>Cant</th><th>Insumo a abonar por unica vez</th><th class="r">P.Unit</th><th class="r">Subtotal</th></tr></thead><tbody>${uData.rows}<tr class="total"><td colspan="3">Total insumos a abonar por unica vez</td><td class="r">${fmt(uData.total)}</td></tr></tbody></table>`;
     if (mData.rows) ubsHtml += `<table><thead><tr><th>Cant</th><th>Insumo mensual</th><th class="r">P.Unit</th><th class="r">Subtotal</th></tr></thead><tbody>${mData.rows}<tr class="total"><td colspan="3">Total insumos mensuales</td><td class="r">${fmt(mData.total)}</td></tr></tbody></table>`;
 
+    // Bonificaciones en cotizacion HTML
+    let cotBonifRows = '';
+    let cotTotalBonif = 0;
+    if (u.extVisitas > 0 && u.extBonificada) {
+      cotBonifRows += '<tr><td colspan="3">Visitas extraordinarias' + (u.extMotivo ? ' - ' + u.extMotivo : '') + '</td><td class="r" style="color:#2e7d32;font-weight:600">-' + fmt(u.costoExtraBruto) + '</td></tr>';
+      cotTotalBonif += u.costoExtraBruto;
+    }
+    u.insumos.forEach(ins => {
+      if (ins.desc > 0) {
+        const montoBonif = ins.cant * ins.precio * ins.desc / 100;
+        cotBonifRows += '<tr><td>' + ins.cant + 'x</td><td>' + ins.nombre + ' (' + ins.desc + '%)</td><td></td><td class="r" style="color:#2e7d32;font-weight:600">-' + fmt(montoBonif) + '</td></tr>';
+        cotTotalBonif += montoBonif;
+      }
+    });
+    if (cotBonifRows) ubsHtml += '<table><thead><tr><th colspan="4" style="background:#e8f5e9;color:#2e7d32">Bonificaciones</th></tr></thead><tbody>' + cotBonifRows + '<tr class="total"><td colspan="3">Total bonificado</td><td class="r" style="color:#2e7d32;font-weight:700">-' + fmt(cotTotalBonif) + '</td></tr></tbody></table>';
+
     ubsHtml += `<div class="ub-resumen"><div class="ub-line"><span>Servicio mensual (operativo + insumos)</span><span>${fmt(servM)}</span></div>
-      ${uData.total>0?'<div class="ub-line"><span>Insumos instalacion inicial</span><span>'+fmt(uData.total)+'</span></div>':''}</div></div>`;
+      ${u.costoExtra>0?'<div class="ub-line" style="font-size:0.85em;opacity:0.7"><span>&nbsp;&nbsp;Incluye visitas extraordinarias</span><span>'+fmt(u.costoExtra)+'</span></div>':''}
+      ${uData.total>0?'<div class="ub-line"><span>Insumos a abonar por unica vez</span><span>'+fmt(uData.total)+'</span></div>':''}</div></div>`;
   });
 
   const cotHtml = `<!DOCTYPE html><html lang="es"><head><meta charset="UTF-8"><title>COT-${num} - ${rs}</title>
@@ -484,6 +722,7 @@ function generarCotizacion() {
   .resumen-general h2 { font-size: 1.1em; margin-bottom: 12px; text-align: center; letter-spacing: 1px; }
   .rg-line { display: flex; justify-content: space-between; padding: 5px 0; font-size: 0.95em; }
   .rg-line.big { font-size: 1.2em; font-weight: 700; border-top: 1px solid rgba(255,255,255,0.3); padding-top: 12px; margin-top: 8px; }
+  .rg-line.iva { font-size: 0.9em; opacity: 0.85; }
   .footer { text-align: center; margin-top: 25px; font-size: 0.8em; color: #999; border-top: 1px solid #ddd; padding-top: 10px; }
   @media print { body { font-size: 12px; } .doc { padding: 0; } .ub-section { break-inside: avoid; } }
 </style></head><body><div class="doc">
@@ -504,9 +743,14 @@ function generarCotizacion() {
     <div class="rg-line"><span>Subtotal mensual (todas las ubicaciones)</span><span>${fmt(d.subtotalMensual)}</span></div>
     ${d.horasAdmin>0?'<div class="rg-line"><span>Horas administrativas ('+d.horasAdmin+'hs x '+fmt(precios.mano_de_obra.valor_hora_administrativa)+')</span><span>'+fmt(d.costoAdmin)+'</span></div>':''}
     ${d.ajusteParticular>0?'<div class="rg-line"><span>Condiciones particulares'+(d.condDesc?' ('+d.condDesc+')':'')+(d.condTipo==='porcentaje'?' '+d.condValor+'%':'')+'</span><span>'+fmt(d.ajusteParticular)+'</span></div>':''}
-    ${d.totalInsIniciales>0?'<div class="rg-line"><span>Insumos de instalacion</span><span>'+fmt(d.totalInsIniciales)+'</span></div>':''}
-    <div class="rg-line big"><span>VALOR MES INICIAL</span><span>${fmt(d.valorInicialTotal)}</span></div>
-    <div class="rg-line big"><span>VALOR MENSUAL RECURRENTE</span><span>${fmt(d.valorMensualTotal)}</span></div>
+    ${d.montoDescGlobal>0?'<div class="rg-line"><span>Descuento global '+d.descGlobal+'%'+(d.descGlobalMotivo?' ('+d.descGlobalMotivo+')':'')+'</span><span>-'+fmt(d.montoDescGlobal)+'</span></div>':''}
+    ${d.totalInsIniciales>0?'<div class="rg-line"><span>Insumos a abonar por unica vez</span><span>'+fmt(d.totalInsIniciales)+'</span></div>':''}
+    <div class="rg-line iva" style="margin-top:12px;padding-top:8px;border-top:1px solid rgba(255,255,255,0.15)"><span>Valor Mensual (sin IVA)</span><span>${fmt(d.valorMensualTotal)}</span></div>
+    <div class="rg-line iva"><span>IVA 21%</span><span>${fmt(d.ivaMensual)}</span></div>
+    <div class="rg-line big"><span>VALOR MENSUAL + IVA</span><span>${fmt(d.valMensualConIva)}</span></div>
+    <div class="rg-line iva" style="margin-top:12px;padding-top:8px;border-top:1px solid rgba(255,255,255,0.15)"><span>Valor Mes Inicial (sin IVA)</span><span>${fmt(d.valorInicialTotal)}</span></div>
+    <div class="rg-line iva"><span>IVA 21%</span><span>${fmt(d.ivaInicial)}</span></div>
+    <div class="rg-line big"><span>VALOR MES INICIAL + IVA</span><span>${fmt(d.valInicialConIva)}</span></div>
   </div>
   <div class="footer">Cotizacion generada el ${fecha} a las ${hora}hs</div>
 </div></body></html>`;
@@ -520,6 +764,144 @@ function abrirCotizacion() {
   cotizacionWindow = window.open('', '_blank');
   cotizacionWindow.document.write(window._cotHtmlContent);
   cotizacionWindow.document.close();
+}
+
+function descargarTXT() {
+  if (!window._cotData) return alert('No hay cotizacion generada');
+  const d = window._cotData;
+  const rs = document.getElementById('razonSocial').value || 'SIN RAZON SOCIAL';
+  const cuit = document.getElementById('cuit').value || 'XX-XXXXXXXX-X';
+  const tel = document.getElementById('telefono').value || '-';
+  const contacto = document.getElementById('contactoNombre').value || '-';
+  const cargo = document.getElementById('contactoCargo').value || '-';
+  const num = window._cotNumero || '0000';
+  const now = new Date();
+  const fecha = now.toLocaleDateString('es-AR',{day:'2-digit',month:'2-digit',year:'numeric'});
+  const nombre = 'COT-' + num + '_' + rs.replace(/[^a-zA-Z0-9]+/g, '-').toUpperCase() + '.txt';
+  const linea = '='.repeat(60);
+  const linea2 = '-'.repeat(60);
+
+  let t = '';
+  t += linea + '\n';
+  t += '   COTIZACION DE SERVICIO DE CONTROL DE PLAGAS\n';
+  t += linea + '\n\n';
+  t += '  Cotizacion N.:  COT-' + num + '\n';
+  t += '  Fecha:          ' + fecha + '\n\n';
+  t += linea2 + '\n';
+  t += '  DATOS DEL CLIENTE\n';
+  t += linea2 + '\n';
+  t += '  Razon Social:   ' + rs + '\n';
+  t += '  CUIT:           ' + cuit + '\n';
+  t += '  Contacto:       ' + contacto + ' - ' + cargo + '\n';
+  t += '  Telefono:       ' + tel + '\n\n';
+
+  d.ubicaciones.forEach((u, idx) => {
+    t += linea + '\n';
+    t += '  ' + u.nombre.toUpperCase() + '\n';
+    t += linea + '\n';
+    t += '  ' + u.direccion + '  |  ' + u.m2 + ' m2  |  ' + u.frecuencia + '\n\n';
+
+    t += '  VISITAS REGULARES\n';
+    t += '  ' + linea2.substring(0, 40) + '\n';
+    t += '  Horas/visita:   ' + u.horas + 'hs\n';
+    t += '  Operarios:      ' + u.operarios + '\n';
+    t += '  Visitas/mes:    ' + u.visitas + '\n';
+    t += '  Dia:            ' + u.dia + '\n';
+    t += '  Horario:        ' + u.horario + '\n';
+    t += '  Ajuste:         ' + (u.ajuste > 0 ? u.ajusteDesc : 'Ninguno') + '\n';
+    t += '  Costo:          ' + fmt(u.costoOp) + '\n\n';
+
+    if (u.extVisitas > 0) {
+      t += '  VISITAS EXTRAORDINARIAS' + (u.extMotivo ? ' - ' + u.extMotivo : '') + '\n';
+      t += '  ' + linea2.substring(0, 40) + '\n';
+      t += '  Horas/visita:   ' + u.extHoras + 'hs\n';
+      t += '  Operarios:      ' + u.extOperarios + '\n';
+      t += '  Visitas/mes:    ' + u.extVisitas + '\n';
+      t += '  Dia:            ' + u.diaExtra + '\n';
+      t += '  Horario:        ' + u.horarioExtra + '\n';
+      t += '  Ajuste:         ' + (u.ajusteExtra > 0 ? u.ajusteExtraDesc : 'Ninguno') + '\n';
+      if (u.extBonificada) {
+        t += '  Costo:          Bonificado -' + fmt(u.costoExtraBruto) + '\n\n';
+      } else {
+        t += '  Costo:          ' + fmt(u.costoExtra) + '\n\n';
+      }
+    }
+
+    const unicos = u.insumos.filter(i => i.tipo === 'U');
+    const mensuales = u.insumos.filter(i => i.tipo === 'M');
+    const fmtIns = (arr, titulo) => {
+      if (arr.length === 0) return '';
+      let total = 0, s = '  ' + titulo.toUpperCase() + '\n  ' + linea2.substring(0, 40) + '\n';
+      arr.forEach(ins => {
+        let p = ins.precio;
+        if (ins.desc === 100) p = 0;
+        else if (ins.desc > 0) p = ins.precio * (1 - ins.desc/100);
+        const sub = ins.cant * p;
+        total += sub;
+        s += '  ' + ins.cant + 'x ' + ins.nombre + '  ' + fmt(p) + ' c/u  =  ' + fmt(sub) + '\n';
+      });
+      s += '  Total: ' + fmt(total) + '\n\n';
+      return s;
+    };
+    t += fmtIns(unicos, 'Insumos a abonar por unica vez');
+    t += fmtIns(mensuales, 'Insumos mensuales');
+
+    // Seccion BONIFICACIONES
+    let bonifs = [];
+    if (u.extVisitas > 0 && u.extBonificada) {
+      bonifs.push({ desc: 'Visitas extraordinarias' + (u.extMotivo ? ' - ' + u.extMotivo : ''), monto: u.costoExtraBruto });
+    }
+    u.insumos.forEach(ins => {
+      if (ins.desc > 0) {
+        const montoBonif = ins.cant * ins.precio * ins.desc / 100;
+        bonifs.push({ desc: ins.cant + 'x ' + ins.nombre + ' (' + ins.desc + '%)', monto: montoBonif });
+      }
+    });
+    if (bonifs.length > 0) {
+      let totalBonif = 0;
+      t += '  BONIFICACIONES\n';
+      t += '  ' + linea2.substring(0, 40) + '\n';
+      bonifs.forEach(b => {
+        totalBonif += b.monto;
+        t += '  ' + b.desc + '    -' + fmt(b.monto) + '\n';
+      });
+      t += '  Total bonificado:    -' + fmt(totalBonif) + '\n\n';
+    }
+
+    const mTotal = mensuales.reduce((a, ins) => { let p = ins.desc===100?0:ins.precio*(1-ins.desc/100); return a + ins.cant*p; }, 0);
+    const servM = u.costoOp + u.costoExtra + mTotal;
+    t += '  Servicio mensual: ' + fmt(servM) + '\n';
+    if (u.costoExtra > 0) t += '    Incluye visitas extraordinarias: ' + fmt(u.costoExtra) + '\n';
+    t += '\n';
+  });
+
+  t += linea + '\n';
+  t += '  RESUMEN GENERAL\n';
+  t += linea + '\n\n';
+  t += '  Subtotal mensual (ubicaciones)       ' + fmt(d.subtotalMensual) + '\n';
+  if (d.horasAdmin > 0) t += '  Horas admin (' + d.horasAdmin + 'hs x ' + fmt(precios.mano_de_obra.valor_hora_administrativa) + ')    ' + fmt(d.costoAdmin) + '\n';
+  if (d.ajusteParticular > 0) t += '  Condiciones particulares' + (d.condDesc?' ('+d.condDesc+')':'') + (d.condTipo==='porcentaje'?' '+d.condValor+'%':'') + '    ' + fmt(d.ajusteParticular) + '\n';
+  if (d.montoDescGlobal > 0) t += '  Descuento global ' + d.descGlobal + '%' + (d.descGlobalMotivo?' ('+d.descGlobalMotivo+')':'') + '    -' + fmt(d.montoDescGlobal) + '\n';
+  if (d.totalInsIniciales > 0) t += '  Insumos (unica vez)                  ' + fmt(d.totalInsIniciales) + '\n';
+  t += '\n' + linea2 + '\n';
+  t += '  Valor Mensual (sin IVA)              ' + fmt(d.valorMensualTotal) + '\n';
+  t += '  IVA 21%                              ' + fmt(d.ivaMensual) + '\n';
+  t += '  VALOR MENSUAL + IVA                  ' + fmt(d.valMensualConIva) + '\n';
+  t += linea2 + '\n';
+  t += '  Valor Mes Inicial (sin IVA)          ' + fmt(d.valorInicialTotal) + '\n';
+  t += '  IVA 21%                              ' + fmt(d.ivaInicial) + '\n';
+  t += '  VALOR MES INICIAL + IVA              ' + fmt(d.valInicialConIva) + '\n';
+  t += linea + '\n';
+
+  const blob = new Blob([t], { type: 'text/plain;charset=utf-8' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = nombre;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
 }
 </script>
 </body>
