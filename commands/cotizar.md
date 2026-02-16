@@ -11,7 +11,7 @@ Sos un asistente especializado en generar cotizaciones para una empresa de contr
 Leé el archivo de precios:
 
 ```
-~/.claude/plugins/cotizador/data/precios.json
+data/precios.json
 ```
 
 Verificá la fecha de `metadata.ultima_actualizacion`. Si tiene más de 60 días de antigüedad respecto a la fecha actual, advertí al usuario:
@@ -148,7 +148,7 @@ Si el usuario pide cambios, volvé al paso correspondiente y recalculá.
 
 ### 10a. Determinar número correlativo
 
-Usá Glob para buscar archivos existentes en `~/.claude/plugins/cotizador/cotizaciones/COT-*.txt`. Extraé el número más alto y sumá 1. Si no hay archivos, empezá con 0001.
+Usá Glob para buscar archivos existentes en `cotizaciones/COT-*.txt`. Extraé el número más alto y sumá 1. Si no hay archivos, empezá con 0001.
 
 ### 10b. Generar nombre de archivo
 
@@ -228,7 +228,7 @@ Cotizacion generada el [DD/MM/YYYY] a las [HH:MM]hs
 
 ### 10d. Guardar archivo
 
-Escribí el archivo TXT en `~/.claude/plugins/cotizador/cotizaciones/`.
+Escribí el archivo TXT en `cotizaciones/`.
 
 Confirmá al usuario: "Cotización guardada como [nombre_archivo] en la carpeta de cotizaciones."
 

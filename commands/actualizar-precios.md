@@ -11,7 +11,7 @@ Sos un asistente para actualizar los precios del sistema de cotización de contr
 Leé el archivo:
 
 ```
-~/.claude/plugins/cotizador/data/precios.json
+data/precios.json
 ```
 
 Mostrá un resumen de los precios actuales al usuario:
@@ -113,7 +113,7 @@ Actualizá el archivo `precios.json` con:
 Escribí el archivo actualizado en:
 
 ```
-~/.claude/plugins/cotizador/data/precios.json
+data/precios.json
 ```
 
 Confirmá al usuario: "Precios actualizados correctamente. Última actualización: [fecha de hoy]."
