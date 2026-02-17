@@ -155,19 +155,19 @@ const generarCotizacion = () => {
   @media print {
     body { font-size: 10.5px; line-height: 1.3; }
     .doc { padding: 0; }
-    .doc-header { padding-bottom: 5px; margin-bottom: 6px; }
+    .doc-header { padding-bottom: 5px; margin-bottom: 6px; break-inside: avoid; }
     .doc-header h1 { font-size: 1.2em; margin-bottom: 3px; }
-    .cliente { padding: 6px 10px; margin-bottom: 6px; }
+    .cliente { padding: 6px 10px; margin-bottom: 6px; break-inside: avoid; }
     .cliente h2 { margin-bottom: 4px; }
-    .ub-section { padding: 6px 8px; margin-bottom: 6px; break-inside: avoid; }
-    .ub-section h3 { margin-bottom: 1px; padding-bottom: 2px; }
-    .ub-meta { margin-bottom: 3px; }
-    table { margin: 2px 0; }
+    .ub-section { padding: 6px 8px; margin-bottom: 6px; }
+    .ub-section h3 { margin-bottom: 1px; padding-bottom: 2px; break-after: avoid; }
+    .ub-meta { margin-bottom: 3px; break-after: avoid; }
+    table { margin: 2px 0; break-inside: avoid; }
     th { padding: 2px 6px; }
     td { padding: 2px 6px; }
-    .ub-resumen { padding: 4px 8px; margin-top: 3px; }
+    .ub-resumen { padding: 4px 8px; margin-top: 3px; break-inside: avoid; }
     .ub-line { padding: 1px 0; }
-    .resumen-general { padding: 10px 12px; margin-top: 6px; }
+    .resumen-general { padding: 10px 12px; margin-top: 6px; break-inside: avoid; }
     .resumen-general h2 { margin-bottom: 4px; padding-bottom: 4px; font-size: 0.95em; }
     .rg-line { padding: 2px 0; font-size: 0.85em; }
     .rg-line.big { padding-top: 5px; margin-top: 3px; font-size: 1em; }
