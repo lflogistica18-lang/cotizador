@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Actualizar Precios - Control de Plagas</title>
+<link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+<button class="hamburger" onclick="toggleSidebar()">&#9776;</button>
+<div class="sidebar-overlay" onclick="toggleSidebar()"></div>
+<div class="app-wrapper">
+  <aside class="sidebar">
+    <div class="sidebar-header">
+      <div class="logo-placeholder">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+      </div>
+      <div class="user-name">Usuario</div>
+    </div>
+    <nav class="sidebar-nav">
+      <a href="#"><span class="nav-icon"></span> Asistente de Ventas</a>
+      <a href="index.html"><span class="nav-icon"></span> Cotizador</a>
+      <a href="#"><span class="nav-icon"></span> Generador de Propuestas</a>
+      <a href="precios.html" class="active"><span class="nav-icon"></span> Actualizar Precios</a>
+    </nav>
+  </aside>
+  <main class="main-content">
+    <header class="header">
+      <div>
+        <h1>Actualizar Precios</h1>
+        <div class="precios-info" id="preciosInfo"></div>
+      </div>
+    </header>
+    <section class="container">
+
+      <!-- Seccion 1: Aumento general -->
+      <div class="ubicacion-card">
+        <h3>Aumento general</h3>
+        <p class="step-hint">Aplica un porcentaje de aumento a todos los valores de mano de obra e insumos.</p>
+        <div class="row">
+          <div>
+            <label>Porcentaje de aumento</label>
+            <input type="number" id="pctAumento" min="0" step="0.5" value="0" placeholder="Ej: 10">
+          </div>
+          <div style="display:flex;align-items:flex-end">
+            <button class="btn btn-primary" onclick="aplicarAumento()">Aplicar aumento</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Seccion 2: Mano de obra -->
+      <div class="ubicacion-card">
+        <h3>Mano de obra</h3>
+        <div class="row">
+          <div>
+            <label>Valor hora operario</label>
+            <input type="number" id="valorHoraOperario" min="0" step="1">
+          </div>
+          <div>
+            <label>Valor hora administrativa</label>
+            <input type="number" id="valorHoraAdmin" min="0" step="1">
+          </div>
+        </div>
+      </div>
+
+      <!-- Seccion 3: Ajustes por evento -->
+      <div class="ubicacion-card">
+        <h3>Ajustes por evento</h3>
+        <div class="row">
+          <div>
+            <label>Nocturno %</label>
+            <input type="number" id="ajNocturno" min="0" step="0.5">
+            <span class="step-hint" style="margin-top:4px;display:block;padding:4px 8px" id="descNocturno"></span>
+          </div>
+          <div>
+            <label>Domingo %</label>
+            <input type="number" id="ajDomingo" min="0" step="0.5">
+            <span class="step-hint" style="margin-top:4px;display:block;padding:4px 8px" id="descDomingo"></span>
+          </div>
+          <div>
+            <label>Sabado post 13hs %</label>
+            <input type="number" id="ajSabado" min="0" step="0.5">
+            <span class="step-hint" style="margin-top:4px;display:block;padding:4px 8px" id="descSabado"></span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Seccion 4: Insumos -->
+      <div class="ubicacion-card">
+        <h3>Insumos</h3>
+        <table class="resumen-table" id="tablaInsumos">
+          <thead>
+            <tr>
+              <th>Insumo</th>
+              <th>Precio actual</th>
+              <th>Nuevo precio</th>
+              <th>Variacion</th>
+            </tr>
+          </thead>
+          <tbody id="tbodyInsumos"></tbody>
+        </table>
+      </div>
+
+      <!-- Seccion 5: Descuentos mayoristas (Trampas UV) -->
+      <div class="ubicacion-card">
+        <h3>Descuentos mayoristas - Trampas UV</h3>
+        <table class="resumen-table" id="tablaDescuentos">
+          <thead>
+            <tr>
+              <th>Desde</th>
+              <th>Hasta</th>
+              <th>Descuento %</th>
+            </tr>
+          </thead>
+          <tbody id="tbodyDescuentos"></tbody>
+        </table>
+      </div>
+
+      <!-- Seccion 6: Comparativo y descarga -->
+      <div class="resumen-final" id="comparativo">
+        <h3 style="margin-bottom:12px;font-size:1.05em">Resumen de cambios</h3>
+        <div id="listaComparativo"><div class="line">Sin cambios</div></div>
+        <div style="margin-top:18px;display:flex;gap:10px;align-items:center;flex-wrap:wrap">
+          <button class="btn btn-success" onclick="descargarJSON()">Descargar precios.json</button>
+          <span style="font-size:0.82em;opacity:0.7">Reemplace el archivo data/precios.json en el repositorio con el archivo descargado</span>
+        </div>
+      </div>
+
+    </section>
+  </main>
+</div>
+
+<script src="js/data.js"></script>
+<script src="js/utils.js"></script>
+<script src="js/precios.js"></script>
+</body>
+</html>

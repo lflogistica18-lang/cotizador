@@ -17,9 +17,11 @@ const getUbicaciones = () => {
     const horas = parseFloat(opH[i].value) || 0, ops = parseInt(opO[i].value) || 0, vis = parseFloat(opV[i].value) || 0;
     const costoOp = horas * precios.mano_de_obra.valor_hora_operario * ops * vis * (1 + ajReg.aj / 100);
 
-    const extHoras = opExtraH[i] ? (parseFloat(opExtraH[i].value) || 0) : 0;
-    const extOps = opExtraO[i] ? (parseInt(opExtraO[i].value) || 0) : 0;
-    const extVis = opExtraV[i] ? (parseFloat(opExtraV[i].value) || 0) : 0;
+    const tieneExtra = document.querySelectorAll('.op-tiene-extra')[i];
+    const extraActivo = tieneExtra && tieneExtra.value === 'si';
+    const extHoras = extraActivo && opExtraH[i] ? (parseFloat(opExtraH[i].value) || 0) : 0;
+    const extOps = extraActivo && opExtraO[i] ? (parseInt(opExtraO[i].value) || 0) : 0;
+    const extVis = extraActivo && opExtraV[i] ? (parseFloat(opExtraV[i].value) || 0) : 0;
     const diaExtra = opExtraDia[i] ? opExtraDia[i].value : 'Lunes a Viernes';
     const horExtra = opExtraHor[i] ? opExtraHor[i].value : 'Diurno (8-18hs)';
     const extMotivo = opExtraMotivo[i] ? opExtraMotivo[i].value : '';
