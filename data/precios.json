@@ -1,8 +1,8 @@
 {
   "metadata": {
-    "ultima_actualizacion": "2026-02-11",
+    "ultima_actualizacion": "2026-05-18",
     "moneda": "ARS",
-    "notas": "Precios vigentes al 11/02/2026. Revisar periódicamente. Descuentos mayoristas solo aplican a Trampas UV."
+    "notas": "Precios vigentes al 18/05/2026. Revisar periódicamente. Descuentos mayoristas solo aplican a Trampas UV."
   },
   "ajustes": {
     "nocturno": {
@@ -27,12 +27,12 @@
   "insumos": {
     "caja_cebadera": {
       "nombre": "Caja cebadera",
-      "precio_unitario": 5500,
+      "precio_unitario": 7000,
       "unidad": "unidad"
     },
     "placa_uv": {
       "nombre": "Placa UV",
-      "precio_unitario": 1550,
+      "precio_unitario": 2000,
       "unidad": "unidad"
     },
     "placa_roe": {
@@ -42,13 +42,29 @@
     },
     "trampa_uv": {
       "nombre": "Trampa UV",
-      "precio_unitario": 85000,
+      "precio_unitario": 120000,
       "unidad": "unidad",
       "descuentos_mayoristas": [
-        { "desde": 1, "hasta": 4, "descuento": 0 },
-        { "desde": 5, "hasta": 9, "descuento": 5 },
-        { "desde": 10, "hasta": 19, "descuento": 10 },
-        { "desde": 20, "hasta": null, "descuento": 15 }
+        {
+          "desde": 1,
+          "hasta": 4,
+          "descuento": 0
+        },
+        {
+          "desde": 5,
+          "hasta": 9,
+          "descuento": 5
+        },
+        {
+          "desde": 10,
+          "hasta": 19,
+          "descuento": 10
+        },
+        {
+          "desde": 20,
+          "hasta": null,
+          "descuento": 15
+        }
       ]
     },
     "und_33_3": {
